@@ -1,0 +1,7 @@
+UPLOAD THE FOLDER NAMED `starbase` TO YOUR GITHUB REPOSITORY.
+
+Then set the Streamlit main module path to:
+
+starbase/app.py
+
+Do not rename the folder with spaces or parentheses. In particular, avoid names ending in `(1)`.

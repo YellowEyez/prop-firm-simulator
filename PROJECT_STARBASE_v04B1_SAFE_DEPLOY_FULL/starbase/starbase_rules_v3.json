@@ -1,0 +1,309 @@
+{
+  "schema_version": "3.0.0",
+  "rulebook_name": "Project StarBase Current Futures Prop Rulebook",
+  "verified_as_of": "2026-08-11",
+  "purpose": "Versioned, source-cited research rulebook. v3 is descriptive only; v4+ will execute these rules in the trusted state machine.",
+  "drawdown_taxonomy": [
+    "EOD_TRAILING",
+    "INTRADAY_TRAILING",
+    "STATIC",
+    "NONE",
+    "SELECTABLE_EOD_OR_INTRADAY"
+  ],
+  "dll_actions": ["NONE", "SOFT_PAUSE_SESSION", "HARD_FAIL"],
+  "policy_presets": {
+    "research_all": {
+      "label": "Research - All verified products",
+      "description": "Show EOD, intraday-trailing, static and hybrid products together. Nothing is excluded by drawdown type.",
+      "allowed_funded_drawdowns": ["EOD_TRAILING", "INTRADAY_TRAILING", "STATIC", "NONE"]
+    },
+    "eod_funded_focus": {
+      "label": "Production research - EOD/static funded focus",
+      "description": "Convenience filter for products whose funded stage is EOD trailing, static or no trailing drawdown. This is a filter, not a deletion rule.",
+      "allowed_funded_drawdowns": ["EOD_TRAILING", "STATIC", "NONE"]
+    },
+    "intraday_funded_research": {
+      "label": "Intraday funded research",
+      "description": "Show products whose funded stage uses intraday trailing drawdown so their economics can be studied separately.",
+      "allowed_funded_drawdowns": ["INTRADAY_TRAILING"]
+    }
+  },
+  "firms": [
+    {
+      "firm_id": "apex",
+      "display_name": "Apex Trader Funding",
+      "household_limits": {"sim_funded_max": 20},
+      "sources": [
+        "https://dashboard.apextraderfunding.com/agreement/user-agreement"
+      ],
+      "products": [
+        {
+          "product_id": "apex_eod",
+          "display_name": "Apex EOD Evaluation -> EOD PA",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-evaluations/",
+            "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-performance-accounts-pa/",
+            "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-payouts/",
+            "https://apextraderfunding.com/help-center/additional-helpful-items/daily-loss-limit-explained/"
+          ],
+          "account_sizes": {
+            "25000": {"evaluation": {"profit_target": 1500, "max_loss": 1000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 500, "action": "SOFT_PAUSE_SESSION"}, "min_days": 0, "max_minis": 4}, "sim_funded": {"max_loss": 1000, "drawdown_type": "EOD_TRAILING", "dll_mode": "TIERED_SOFT_PAUSE", "max_minis": 2, "payout": {"qualifying_days": 5, "qualifying_day_profit": 100, "consistency_percent": 50, "safety_net": 26100, "minimum_payout": 500, "maximum_payouts": 6, "profit_split_percent": 100, "caps": [1000,1000,1000,1000,1000,1000]}}},
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 1000, "action": "SOFT_PAUSE_SESSION"}, "min_days": 0, "max_minis": 6}, "sim_funded": {"max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll_mode": "TIERED_SOFT_PAUSE", "max_minis": 4, "payout": {"qualifying_days": 5, "qualifying_day_profit": 250, "consistency_percent": 50, "safety_net": 52100, "minimum_payout": 500, "maximum_payouts": 6, "profit_split_percent": 100, "caps": [1500,1500,2000,2500,2500,3000]}}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 1500, "action": "SOFT_PAUSE_SESSION"}, "min_days": 0, "max_minis": 8}, "sim_funded": {"max_loss": 3000, "drawdown_type": "EOD_TRAILING", "dll_mode": "TIERED_SOFT_PAUSE", "max_minis": 6, "payout": {"qualifying_days": 5, "qualifying_day_profit": 300, "consistency_percent": 50, "safety_net": 103100, "minimum_payout": 500, "maximum_payouts": 6, "profit_split_percent": 100, "caps": [2000,2500,2500,3000,4000,4000]}}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 2000, "action": "SOFT_PAUSE_SESSION"}, "min_days": 0, "max_minis": 12}, "sim_funded": {"max_loss": 4000, "drawdown_type": "EOD_TRAILING", "dll_mode": "TIERED_SOFT_PAUSE", "max_minis": 10, "payout": {"qualifying_days": 5, "qualifying_day_profit": 350, "consistency_percent": 50, "safety_net": 154100, "minimum_payout": 500, "maximum_payouts": 6, "profit_split_percent": 100, "caps": [2500,3000,3000,3000,4000,5000]}}}
+          }
+        },
+        {
+          "product_id": "apex_intraday",
+          "display_name": "Apex Intraday Trailing Evaluation -> Intraday PA",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://apextraderfunding.com/help-center/intraday-trailing-drawdown-accounts/intraday-trailing-drawdown-evaluations/",
+            "https://apextraderfunding.com/help-center/uncategorized/intraday-trailing-drawdown-payouts/"
+          ],
+          "account_sizes": {
+            "25000": {"evaluation": {"profit_target": 1500, "max_loss": 1000, "drawdown_type": "INTRADAY_TRAILING", "dll": {"amount": null, "action": "NONE"}, "min_days": 0}, "sim_funded": {"max_loss": 1000, "drawdown_type": "INTRADAY_TRAILING", "payout": {"qualifying_days": 5, "qualifying_day_profit": 100, "minimum_payout": 500, "maximum_payouts": 6}}},
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "INTRADAY_TRAILING", "dll": {"amount": null, "action": "NONE"}, "min_days": 0}, "sim_funded": {"max_loss": 2000, "drawdown_type": "INTRADAY_TRAILING", "payout": {"qualifying_days": 5, "qualifying_day_profit": 200, "minimum_payout": 500, "maximum_payouts": 6}}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "INTRADAY_TRAILING", "dll": {"amount": null, "action": "NONE"}, "min_days": 0}, "sim_funded": {"max_loss": 3000, "drawdown_type": "INTRADAY_TRAILING", "payout": {"qualifying_days": 5, "qualifying_day_profit": 250, "minimum_payout": 500, "maximum_payouts": 6}}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4000, "drawdown_type": "INTRADAY_TRAILING", "dll": {"amount": null, "action": "NONE"}, "min_days": 0}, "sim_funded": {"max_loss": 4000, "drawdown_type": "INTRADAY_TRAILING", "payout": {"qualifying_days": 5, "qualifying_day_profit": 300, "minimum_payout": 500, "maximum_payouts": 6}}}
+          }
+        }
+      ]
+    },
+    {
+      "firm_id": "lucid",
+      "display_name": "Lucid Trading",
+      "household_limits": {"evaluation_max": 10, "evaluation_plus_funded_max": 10, "funded_max": 5, "live_max": 5},
+      "sources": ["https://support.lucidtrading.com/en/articles/11404617-maximum-number-of-accounts"],
+      "products": [
+        {
+          "product_id": "lucid_flex",
+          "display_name": "LucidFlex",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://support.lucidtrading.com/en/articles/12945790-lucidflex-evaluation-account",
+            "https://support.lucidtrading.com/en/articles/12945795-lucidflex-funded-account",
+            "https://support.lucidtrading.com/en/articles/12945796-lucidflex-payouts",
+            "https://support.lucidtrading.com/en/articles/12945815-lucidflex-drawdown"
+          ],
+          "account_sizes": {
+            "25000": {"evaluation": {"profit_target": 1250, "max_loss": 1000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "dll": {"amount": null, "action": "NONE"}, "max_minis": 2}, "sim_funded": {"max_loss": 1000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "max_minis": 2, "payout": {"qualifying_days": 5, "qualifying_day_profit": 100, "minimum_payout": 500, "maximum_payout": 1000, "maximum_payouts": 5, "withdrawal_fraction": 0.5, "profit_split_percent": 90}}},
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "dll": {"amount": null, "action": "NONE"}, "max_minis": 4}, "sim_funded": {"max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "max_minis": 4, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "minimum_payout": 500, "maximum_payout": 2000, "maximum_payouts": 5, "withdrawal_fraction": 0.5, "profit_split_percent": 90}}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "dll": {"amount": null, "action": "NONE"}, "max_minis": 6}, "sim_funded": {"max_loss": 3000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "max_minis": 6, "payout": {"qualifying_days": 5, "qualifying_day_profit": 200, "minimum_payout": 500, "maximum_payout": 2500, "maximum_payouts": 5, "withdrawal_fraction": 0.5, "profit_split_percent": 90}}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4500, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "dll": {"amount": null, "action": "NONE"}, "max_minis": 10}, "sim_funded": {"max_loss": 4500, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "max_minis": 10, "payout": {"qualifying_days": 5, "qualifying_day_profit": 250, "minimum_payout": 500, "maximum_payout": 3000, "maximum_payouts": 5, "withdrawal_fraction": 0.5, "profit_split_percent": 90}}}
+          }
+        },
+        {
+          "product_id": "lucid_direct",
+          "display_name": "LucidDirect",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "DIRECT_SIM_FUNDED",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://support.lucidtrading.com/en/articles/12890148-luciddirect-funded-account",
+            "https://support.lucidtrading.com/en/articles/12890192-luciddirect-drawdown",
+            "https://support.lucidtrading.com/en/articles/12890185-luciddirect-daily-loss-limit",
+            "https://support.lucidtrading.com/en/articles/12890164-luciddirect-payout-objectives"
+          ],
+          "account_sizes": {
+            "50000": {"sim_funded": {"max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 1200, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 4, "payout": {"consistency_percent": 20, "profit_goal_first": 3000, "profit_goal_later": 2500, "minimum_payout": 500, "caps": [2000,2000,2000,2500,2500], "profit_split_percent": 90}}},
+            "100000": {"sim_funded": {"max_loss": 3500, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 2100, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 6, "payout": {"consistency_percent": 20, "profit_goal_first": 6000, "profit_goal_later": 3500, "minimum_payout": 500, "caps": [2500,2500,2500,3000,3000], "profit_split_percent": 90}}},
+            "150000": {"sim_funded": {"max_loss": 5000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 3000, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 10, "payout": {"consistency_percent": 20, "profit_goal_first": 9000, "profit_goal_later": 4500, "minimum_payout": 500, "caps": [3000,3000,3000,3500,3500], "profit_split_percent": 90}}}
+          }
+        },
+        {
+          "product_id": "lucid_daily",
+          "display_name": "LucidDaily",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION_WITH_OPTIONS",
+          "simulation_readiness": "RULE_VARIANTS_REQUIRE_CHECKOUT_FLAGS",
+          "sources": [
+            "https://support.lucidtrading.com/en/articles/15996664-luciddaily-evaluation",
+            "https://support.lucidtrading.com/en/articles/15997244-luciddaily-funded-account",
+            "https://support.lucidtrading.com/en/articles/15998425-luciddaily-drawdown",
+            "https://support.lucidtrading.com/en/articles/16085900-luciddaily-daily-loss-limit",
+            "https://support.lucidtrading.com/en/articles/15997266-luciddaily-payouts",
+            "https://support.lucidtrading.com/en/articles/16010520-luciddaily-live"
+          ],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY", "consistency_percent": 50, "dll_optional": 1200, "max_minis": 4}, "sim_funded": {"max_loss": 2000, "drawdown_type": "INTRADAY_TRAILING", "dll_optional": 1200, "max_minis": 4, "payout": {"minimum_payout": 500, "buffer_balance": 52100, "profit_split_percent": 90, "daily_payouts": true, "max_daily_profit_before_live": 8000}}, "live": {"drawdown_type": "EOD_TRAILING", "starting_pnl_balance": 0, "max_loss": 2000, "dll": {"amount": null, "action": "NONE"}, "max_minis": 4, "daily_payouts": true}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY", "consistency_percent": 50, "dll_optional": 1800, "max_minis": 6}, "sim_funded": {"max_loss": 3000, "drawdown_type": "INTRADAY_TRAILING", "dll_optional": 1800, "max_minis": 6, "payout": {"minimum_payout": 500, "buffer_balance": 103100, "profit_split_percent": 90, "daily_payouts": true, "max_daily_profit_before_live": 10000}}, "live": {"drawdown_type": "EOD_TRAILING", "starting_pnl_balance": 0, "max_loss": 3000, "dll": {"amount": null, "action": "NONE"}, "max_minis": 6, "daily_payouts": true}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4500, "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY", "consistency_percent": 50, "dll_optional": 2700, "max_minis": 10}, "sim_funded": {"max_loss": 4500, "drawdown_type": "INTRADAY_TRAILING", "dll_optional": 2700, "max_minis": 10, "payout": {"minimum_payout": 500, "buffer_balance": 154600, "profit_split_percent": 90, "daily_payouts": true, "max_daily_profit_before_live": 12000}}, "live": {"drawdown_type": "EOD_TRAILING", "starting_pnl_balance": 0, "max_loss": 4500, "dll": {"amount": null, "action": "NONE"}, "max_minis": 10, "daily_payouts": true}}
+          }
+        }
+      ]
+    },
+    {
+      "firm_id": "tradeify",
+      "display_name": "Tradeify",
+      "household_limits": {"sim_funded_max": 5},
+      "products": [
+        {
+          "product_id": "tradeify_select_flex",
+          "display_name": "Tradeify Select -> Flex",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://help.tradeify.co/en/articles/12853921-select-evaluation-accounts",
+            "https://help.tradeify.co/en/articles/12853966-select-flex-and-select-daily-payout-policies",
+            "https://help.tradeify.co/en/articles/14369021-tradeify-pricing-reference"
+          ],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "min_days": 3, "dll": {"amount": null, "action": "NONE"}, "max_minis": 4}, "sim_funded": {"max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "withdrawal_fraction": 0.5, "maximum_payout": 3000, "profit_split_percent": 90}}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "min_days": 3, "dll": {"amount": null, "action": "NONE"}, "max_minis": 8}, "sim_funded": {"max_loss": 3000, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 200, "withdrawal_fraction": 0.5, "maximum_payout": 4000, "profit_split_percent": 90}}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4500, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "min_days": 3, "dll": {"amount": null, "action": "NONE"}, "max_minis": 12}, "sim_funded": {"max_loss": 4500, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 250, "withdrawal_fraction": 0.5, "maximum_payout": 5000, "profit_split_percent": 90}}}
+          }
+        },
+        {
+          "product_id": "tradeify_lightning",
+          "display_name": "Tradeify Lightning Funded",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "DIRECT_SIM_FUNDED",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://help.tradeify.co/en/articles/10495938-lightning-funded-accounts",
+            "https://help.tradeify.co/en/articles/10495932-lightning-funded-account-payout-policy",
+            "https://help.tradeify.co/en/articles/14369021-tradeify-pricing-reference"
+          ],
+          "account_sizes": {
+            "50000": {"purchase_price": 492, "sim_funded": {"max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 1250, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 4, "payout": {"consistency_sequence_percent": [20,25,30], "profit_goal_first": 3000, "profit_goal_later": 2000, "minimum_payout": 1000, "caps": [2000,2000,2000,2500], "profit_split_percent": 90}}},
+            "100000": {"purchase_price": 660, "sim_funded": {"max_loss": 4000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 2500, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 8, "payout": {"consistency_sequence_percent": [20,25,30], "profit_goal_first": 6000, "profit_goal_later": 3500, "minimum_payout": 1000, "caps": [2500,2500,2500,3000], "profit_split_percent": 90}}},
+            "150000": {"purchase_price": 796, "sim_funded": {"max_loss": 5250, "drawdown_type": "EOD_TRAILING", "dll": {"amount": 3000, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 12, "payout": {"consistency_sequence_percent": [20,25,30], "profit_goal_first": 9000, "profit_goal_later": 4500, "minimum_payout": 1000, "caps": [3000,3000,3000,3500], "profit_split_percent": 90}}}
+          }
+        }
+      ]
+    },
+    {
+      "firm_id": "fundednext",
+      "display_name": "FundedNext Futures",
+      "household_limits": {"challenge_total_allocation": 750000, "new_challenges_per_month": 15, "funded_max": 5},
+      "products": [
+        {
+          "product_id": "fundednext_flex",
+          "display_name": "FundedNext Futures Flex",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://helpfutures.fundednext.com/en/articles/14878840-what-is-the-profit-target-in-the-fundednext-futures-flex-challenge",
+            "https://helpfutures.fundednext.com/en/articles/14878830-how-do-i-pass-fundednext-futures-flex-challenge",
+            "https://helpfutures.fundednext.com/en/articles/14878865-what-are-the-performance-reward-eligibility-criteria-for-flex-fundednext-account",
+            "https://helpfutures.fundednext.com/en/articles/14261075-how-many-accounts-can-i-hold-with-fundednext-futures-and-what-is-the-maximum-allocation-available"
+          ],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 2500, "max_loss": 1500, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "dll": {"amount": null, "action": "NONE"}, "max_minis": 4}, "sim_funded": {"max_loss": 1500, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 200, "cycle_min_profit": 500, "minimum_payout": 250, "maximum_payout": 1500, "withdrawal_fraction": 0.5, "profit_split_percent": 80, "maximum_payouts": 5}}},
+            "100000": {"evaluation": {"profit_target": 5000, "max_loss": 2500, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "dll": {"amount": null, "action": "NONE"}, "max_minis": 5}, "sim_funded": {"max_loss": 2500, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 200, "cycle_min_profit": 500, "minimum_payout": 250, "maximum_payout": 2500, "withdrawal_fraction": 0.5, "profit_split_percent": 80, "maximum_payouts": 5}}},
+            "150000": {"evaluation": {"profit_target": 8000, "max_loss": 4000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 40, "dll": {"amount": null, "action": "NONE"}, "max_minis": 8}, "sim_funded": {"max_loss": 4000, "drawdown_type": "EOD_TRAILING", "consistency_percent": null, "payout": {"qualifying_days": 5, "qualifying_day_profit": 250, "cycle_min_profit": 500, "minimum_payout": 250, "maximum_payout": 4000, "withdrawal_fraction": 0.5, "profit_split_percent": 80, "maximum_payouts": 5}}}
+          }
+        }
+      ]
+    },
+    {
+      "firm_id": "mffu",
+      "display_name": "My Funded Futures",
+      "products": [
+        {
+          "product_id": "mffu_flex_50k",
+          "display_name": "MFFU Flex 50K",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": ["https://help.myfundedfutures.com/en/articles/15072271-flex-plan-50-000-a-comprehensive-guide"],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "min_days": 2, "dll": {"amount": null, "action": "NONE"}, "dll_optional": {"amount": 1000, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 3}, "sim_funded": {"starting_pnl_balance": 0, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "dll_optional": {"amount": 1000, "action": "SOFT_PAUSE_SESSION"}, "max_minis": 3, "inactivity_days": 7, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "cycle_min_profit": 500, "minimum_payout": 500, "maximum_payout": 2000, "withdrawal_fraction": 0.5, "profit_split_percent": 80, "maximum_payouts": 5, "post_first_payout_floor": 100}}, "live": {"starting_balance": 2000, "minimum_balance": 156, "drawdown_type": "EOD_TRAILING", "dll": {"amount": null, "action": "NONE"}, "max_minis": 3, "minimum_payout": 250, "profit_split_percent": 80, "payout_cadence": "DAILY", "post_breach_cooldown_days": 21}}
+          }
+        },
+        {
+          "product_id": "mffu_rapid_50k",
+          "display_name": "MFFU Rapid 50K",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "INTRADAY_FUNDED_RESEARCH",
+          "sources": ["https://help.myfundedfutures.com/en/articles/13134709-rapid-plan-50k-a-comprehensive-look"],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "min_days": 2, "max_minis": 5}, "sim_funded": {"max_loss": 2000, "drawdown_type": "INTRADAY_TRAILING", "consistency_percent": null}}
+          }
+        }
+      ]
+    },
+    {
+      "firm_id": "topstep",
+      "display_name": "Topstep",
+      "household_limits": {"express_funded_max": 5},
+      "products": [
+        {
+          "product_id": "topstep_standard",
+          "display_name": "Topstep Trading Combine -> XFA Standard",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CORE",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "SUBSCRIPTION_EVALUATION",
+          "simulation_readiness": "READY_FOR_V4_CORE",
+          "sources": [
+            "https://help.topstep.com/en/articles/8284197-trading-combine-parameters",
+            "https://help.topstep.com/en/articles/8284204-what-is-the-maximum-loss-limit",
+            "https://help.topstep.com/en/articles/8284215-express-funded-account-parameters",
+            "https://help.topstep.com/en/articles/8284233-topstep-payout-policy"
+          ],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "max_minis": 5}, "sim_funded": {"starting_pnl_balance": 0, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "max_minis": 5, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "minimum_payout": 125, "maximum_payout": 2000, "withdrawal_fraction": 0.5, "profit_split_percent": 90, "post_first_payout_mll_floor": 0}}},
+            "100000": {"evaluation": {"profit_target": 6000, "max_loss": 3000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "max_minis": 10}, "sim_funded": {"starting_pnl_balance": 0, "max_loss": 3000, "drawdown_type": "EOD_TRAILING", "max_minis": 10, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "minimum_payout": 125, "maximum_payout": 3000, "withdrawal_fraction": 0.5, "profit_split_percent": 90, "post_first_payout_mll_floor": 0}}},
+            "150000": {"evaluation": {"profit_target": 9000, "max_loss": 4500, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "max_minis": 15}, "sim_funded": {"starting_pnl_balance": 0, "max_loss": 4500, "drawdown_type": "EOD_TRAILING", "max_minis": 15, "payout": {"qualifying_days": 5, "qualifying_day_profit": 150, "minimum_payout": 125, "maximum_payout": 5000, "withdrawal_fraction": 0.5, "profit_split_percent": 90, "post_first_payout_mll_floor": 0}}}
+          },
+          "notes": "Topstep also offers an XFA Consistency path and optional DLL checkout variants; v3 stores Standard as the executable core and flags the variants for a later rule expansion."
+        }
+      ]
+    },
+    {
+      "firm_id": "takeprofittrader",
+      "display_name": "Take Profit Trader",
+      "products": [
+        {
+          "product_id": "tpt_test_pro",
+          "display_name": "Take Profit Trader Test -> PRO -> PRO+",
+          "status": "ACTIVE",
+          "verification_status": "PARTIAL_NUMERIC",
+          "verified_date": "2026-08-11",
+          "acquisition_model": "SUBSCRIPTION_EVALUATION",
+          "simulation_readiness": "RULES_PARTIAL_BEFORE_V4",
+          "sources": [
+            "https://try.takeprofittrader.com/nf100-1125-TPT-FAQs",
+            "https://takeprofittrader.com/user-info/calendar"
+          ],
+          "account_sizes": {
+            "50000": {"evaluation": {"profit_target": 3000, "max_loss": 2000, "drawdown_type": "EOD_TRAILING", "consistency_percent": 50, "min_days": 5, "max_minis": 6, "round_trip_commission_nq": 5}, "sim_funded": {"drawdown_type": "INTRADAY_TRAILING", "consistency_percent": null, "profit_split_percent": 80, "payout_cadence": "DAILY", "buffer_required": true, "maximum_payout": null, "max_accounts": 5}, "live": {"drawdown_type": "EOD_TRAILING", "consistency_percent": null, "profit_split_percent": 90, "payout_cadence": "DAILY", "buffer_required": false, "maximum_payout": null, "max_accounts": 5, "inactivity_trade_frequency": "AT_LEAST_WEEKLY"}}
+          },
+          "notes": "PRO uses intraday drawdown while new PRO+ live accounts use EOD drawdown. v3 intentionally includes it for intraday-funded research instead of excluding it. More numeric PRO drawdown/buffer detail is required before v4 execution."
+        }
+      ]
+    }
+  ]
+}
