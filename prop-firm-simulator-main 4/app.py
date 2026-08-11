@@ -12,6 +12,8 @@ import plotly.express as px
 from pathlib import Path
 
 from starbase_audit_ui import render_tradingview_audit_page
+from starbase_rulebook_ui import render_rulebook_page
+from starbase_integrity_ui import render_integrity_page
 
 # Import simulation engine
 from simulation import (
@@ -234,17 +236,27 @@ def main():
         st.header("🚀 StarBase Mode")
         starbase_mode = st.radio(
             "Choose workspace",
-            ["TradingView Import + Audit (v2)", "Legacy Simulator (reference only)"],
+            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Legacy Simulator (reference only)"],
             index=0,
-            help="The v2 audit path is the trusted source-ingestion gate. The legacy lifecycle simulator is preserved for reference until v4+ rewrites its rule/state engine."
+            help="v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility, research lineage, execution fidelity, and drawdown semantics. Legacy remains reference-only until v4."
         )
         if starbase_mode.startswith("TradingView"):
             st.success("v2 audit mode: lifecycle simulation disabled until source integrity passes.")
+        elif starbase_mode.startswith("Prop-Firm"):
+            st.success("v3 rulebook mode: current rules are classified and source-cited; execution begins in v4.")
+        elif starbase_mode.startswith("Research Integrity"):
+            st.success("v3.5 integrity mode: fingerprint sources, classify fidelity, verify rule coverage, and preserve experiment lineage before v4.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 
     if starbase_mode.startswith("TradingView"):
         render_tradingview_audit_page()
+        return
+    if starbase_mode.startswith("Prop-Firm"):
+        render_rulebook_page()
+        return
+    if starbase_mode.startswith("Research Integrity"):
+        render_integrity_page()
         return
 
     # Legacy sidebar for reference simulator
