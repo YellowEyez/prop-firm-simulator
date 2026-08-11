@@ -29,3 +29,26 @@ StarBase does not persist private TradingView datasets in the public repository.
 v4A adds the first trusted lifecycle substrate: a single account object and an immutable, hash-chained accounting ledger. It deliberately stops before drawdown/pass/payout enforcement so those mechanics can be added and regression-tested cumulatively in v4B-v4H.
 
 Use the **Single-Account State + Ledger (v4A)** workspace to initialize one account from the v3 rulebook and inspect how prop-account balance, firm commissions, sessions, account status, and external business cash are recorded.
+
+---
+
+# Project StarBase v4B — Historical Single-Account Trader
+
+v4B is the first cumulative StarBase build that routes real audited TradingView trades through a prop account chronologically.
+
+The **Historical Single-Account Trader (v4B)** workspace now supports:
+
+- multiple TradingView CSV segments,
+- strict-valid vs optional REVIEW rows,
+- configurable `max trades / account / futures session` (default 1),
+- per-contract round-trip firm commission,
+- MAE-aware hard drawdown breach detection,
+- EOD floor ratcheting and product-specific lock semantics where verified,
+- research-grade intraday-trailing path assumptions when MFE/MAE ordering is unknowable,
+- basic soft-DLL session pauses,
+- evaluation target/consistency progress display,
+- fleet-capacity preview for 80% / 90% / 95% signal capture,
+- TP/SL break-even and theoretical payoff diagnostics that never mutate historical executions,
+- downloadable run bundles containing summary, config, rule snapshot, trade routing and session ledger.
+
+**Boundary:** v4B trades one account but deliberately does not yet auto-pass evaluations, activate a fresh funded account, or request payouts. Those transitions remain the cumulative v4D-v4F steps. v5 will distribute the same signal stream across many accounts.
