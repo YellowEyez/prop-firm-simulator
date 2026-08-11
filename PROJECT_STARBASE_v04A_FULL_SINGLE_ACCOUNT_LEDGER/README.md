@@ -21,3 +21,11 @@ v3.5 adds a reproducibility layer before the trusted v4 lifecycle engine changes
 - deterministic whole-futures-session bootstrap foundations for later Monte Carlo.
 
 StarBase does not persist private TradingView datasets in the public repository. Files uploaded in the UI can be fingerprinted in memory and their hashes recorded in a run manifest.
+
+---
+
+# Project StarBase v4A — Trusted Single-Account State + Ledger
+
+v4A adds the first trusted lifecycle substrate: a single account object and an immutable, hash-chained accounting ledger. It deliberately stops before drawdown/pass/payout enforcement so those mechanics can be added and regression-tested cumulatively in v4B-v4H.
+
+Use the **Single-Account State + Ledger (v4A)** workspace to initialize one account from the v3 rulebook and inspect how prop-account balance, firm commissions, sessions, account status, and external business cash are recorded.
