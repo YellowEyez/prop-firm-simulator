@@ -18,6 +18,7 @@ from starbase_rulebook_ui import render_rulebook_page
 from starbase_integrity_ui import render_integrity_page
 from starbase_account_ui import render_account_state_page
 from starbase_historical_runner_ui import render_historical_runner_page
+from starbase_lifecycle_ui import render_lifecycle_page
 
 # Import simulation engine
 from simulation import (
@@ -244,7 +245,7 @@ def main():
         st.header("🚀 StarBase Mode")
         starbase_mode = st.radio(
             "Choose workspace",
-            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Single-Account State + Ledger (v4A)", "Historical Single-Account Trader (v4B)", "Legacy Simulator (reference only)"],
+            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Single-Account State + Ledger (v4A)", "Historical Single-Account Trader (v4B)", "Lifecycle + Account Comparison (v4C)", "Legacy Simulator (reference only)"],
             index=0,
             help="v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
         )
@@ -258,6 +259,8 @@ def main():
             st.success("v4A accounting mode: one-account balance state and immutable accounting ledger. Drawdown/pass/payout enforcement begins in later v4 stages.")
         elif starbase_mode.startswith("Historical Single-Account"):
             st.success("v4B trader mode: exact TradingView signals are routed chronologically into one account with per-session caps, commissions, MAE-aware drawdown and EOD floor logic.")
+        elif starbase_mode.startswith("Lifecycle +"):
+            st.success("v4C lifecycle mode: evaluations actually stop at pass/fail/expiry, supported funded products take real rule-based payouts, and the same exact profile can be compared across accounts.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 
@@ -275,6 +278,9 @@ def main():
         return
     if starbase_mode.startswith("Historical Single-Account"):
         render_historical_runner_page()
+        return
+    if starbase_mode.startswith("Lifecycle +"):
+        render_lifecycle_page()
         return
 
     # Legacy sidebar for reference simulator

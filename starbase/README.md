@@ -1,3 +1,8 @@
+
+## StarBase v4C lifecycle workspace
+
+The newest trusted research workspace is **Lifecycle + Account Comparison (v4C)**. It stops evaluations at real lifecycle events and models payouts for the verified core funded products instead of allowing every account to accumulate one generic ending balance.
+
 # Project StarBase v2
 
 > **Current trusted scope:** TradingView Import + Audit. The original simulator is preserved as `Legacy Simulator (reference only)` until its prop-firm lifecycle engine is rewritten in later StarBase versions.

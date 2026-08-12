@@ -224,3 +224,36 @@ Every account pass, payout, failure, closure, transition, and routing decision m
 StarBase is ultimately a prop-business simulator, not a single-account toy. A high-frequency strategy that produces dozens of valid signals per session should be able to feed dozens of eligible accounts when the household inventory and firm rules permit it.
 
 The single-account engine exists only to prove the arithmetic before multiplying it across a fleet.
+
+## 14. Required fleet-capacity research modes
+
+The fleet engine must distinguish capacity policy from per-account trade caps. With `max_trades_per_account_per_futures_session = 1`, 30 valid signals require 30 account-session slots if the goal is to route all 30.
+
+Required capacity modes:
+
+1. FIXED_FLEET — use exactly N configured accounts.
+2. REALISTIC_RULE_CONSTRAINED — use only currently legal inventory/capacity under real firm and household limits.
+3. AUTO_PROVISION_WITHIN_RULES — purchase/reset/activate/replenish accounts automatically while obeying real limits.
+4. TARGET_CAPTURE_PERCENT — provision enough capacity to target a user-selected signal capture level such as 50/75/80/90/95/100% when legally possible.
+5. FORCE_100_PERCENT_CAPTURE_RESEARCH — guarantee an account-session slot for every valid signal, overriding account-count/household capacity limits only for clearly labeled research. Per-account trading, drawdown, payout, commission and failure rules still apply.
+
+FORCE_100_PERCENT_CAPTURE_RESEARCH must never masquerade as a deployable household forecast. It must show the number of account slots required, theoretical account consumption/cost, and the gap between full-capture economics and realistic legal capacity.
+
+Unlimited/full-capture research must support at least three inventory-cost assumptions:
+- COSTED_UNLIMITED: generated accounts still incur modeled acquisition/replacement costs.
+- PREEXISTING_BANKED_INVENTORY: assume funded/passed inventory already exists and track acquisition cost separately.
+- FREE_CAPACITY_DIAGNOSTIC: ignore acquisition cost only as a clearly labeled mathematical ceiling, never a production result.
+
+## 15. Linked-account / compatibility constraints
+
+Not every account can coexist independently. StarBase must support explicit compatibility/dependency rules when a firm's products, household caps, payout/live transitions, bundles, or stage conversions affect other accounts.
+
+The future account graph should be able to represent:
+- accounts sharing one household/allocation cap;
+- eval bundles that share purchase/expiration timing but pass/fail independently;
+- a funded payout/live transition that closes or converts multiple related accounts;
+- products that cannot coexist under the same firm/program policy;
+- stage transitions that consume a banked evaluation or funded slot;
+- accounts that remain independent even if purchased together.
+
+When a configured combination is impossible or incompatible, StarBase should explain which relationship blocks it instead of silently dropping accounts or forcing them into a generic pool.
