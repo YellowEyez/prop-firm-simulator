@@ -10,8 +10,8 @@ class StarBaseRulebookTests(unittest.TestCase):
         cls.rows = flatten_rulebook(cls.data)
 
     def test_rulebook_loads_and_has_current_schema(self):
-        self.assertEqual(self.data['schema_version'], '3.0.0')
-        self.assertEqual(self.data['verified_as_of'], '2026-08-11')
+        self.assertEqual(self.data['schema_version'], '3.1.0')
+        self.assertEqual(self.data['verified_as_of'], '2026-08-12')
         self.assertGreaterEqual(len(self.data['firms']), 7)
 
     def test_all_active_products_have_official_sources(self):
@@ -51,7 +51,7 @@ class StarBaseRulebookTests(unittest.TestCase):
         s = p['account_sizes']['50000']
         self.assertEqual(s['sim_funded']['drawdown_type'], 'INTRADAY_TRAILING')
         self.assertEqual(s['live']['drawdown_type'], 'EOD_TRAILING')
-        self.assertEqual(p['verification_status'], 'PARTIAL_NUMERIC')
+        self.assertEqual(p['verification_status'], 'VERIFIED_CURRENT_PARTIAL_AUTOMATION_2026_08_12')
 
     def test_mffu_rapid_remains_available_for_intraday_research(self):
         p = product_details(self.data, 'mffu_rapid_50k')['product']

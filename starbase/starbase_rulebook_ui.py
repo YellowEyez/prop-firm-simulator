@@ -3,7 +3,14 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from starbase_rulebook import filter_rows, flatten_rulebook, load_rulebook, product_details
+from starbase_rulebook import (
+    filter_rows,
+    flatten_rulebook,
+    load_rulebook,
+    product_details,
+    rulebook_freshness,
+)
+from starbase_rule_semantics import rule_truth_matrix
 
 DD_LABELS = {
     "EOD_TRAILING": "🟦 EOD trailing",
@@ -11,7 +18,14 @@ DD_LABELS = {
     "STATIC": "🟩 Static",
     "NONE": "⬜ None",
     "SELECTABLE_EOD_OR_INTRADAY": "🟪 Selectable EOD / intraday",
-    None: "—"
+    None: "—",
+}
+GRADE_LABELS = {
+    "PRODUCTION_READY": "🟢 Production-ready core",
+    "RULES_VERIFIED_ENGINE_PENDING": "🟡 Rules verified / engine pending",
+    "VARIANT_SELECTION_REQUIRED": "🟣 Variant selection required",
+    "RESEARCH_ONLY": "🟠 Research only",
+    "NOT_MODELED": "🔴 Not modeled",
 }
 
 
@@ -24,31 +38,39 @@ def _fmt_money(v):
 def render_rulebook_page():
     data = load_rulebook()
     rows = flatten_rulebook(data)
+    fresh = rulebook_freshness(data)
 
-    st.header("📚 StarBase v3 — Versioned Prop-Firm Rulebook")
+    st.header("📚 StarBase v5E — Current Prop-Firm Rule Truth Layer")
     st.caption(
-        "This page is the new source-cited rule layer. It does not execute lifecycle math yet. "
-        "v4 will consume this schema instead of the stale legacy prop_firms.json."
+        "Official rules and simulation coverage are deliberately separate. A rule can be verified from the firm while the dedicated StarBase lifecycle handler is still pending."
     )
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Verified as of", data["verified_as_of"])
-    c2.metric("Firms", len(data["firms"]))
-    c3.metric("Product families", sum(len(f.get("products", [])) for f in data["firms"]))
-    c4.metric("Account-size variants", len(rows))
+    c2.metric("Freshness", fresh["grade"])
+    c3.metric("Firms", len(data["firms"]))
+    c4.metric("Product paths", sum(len(f.get("products", [])) for f in data["firms"]))
+    c5.metric("Size variants", len(rows))
 
-    st.info(
-        "StarBase no longer globally hides intraday-trailing funded products. Use Research mode to compare everything, "
-        "or the EOD/static preset to isolate products that match the project's usual production preference."
-    )
+    if fresh["grade"] == "STALE":
+        st.error(f"Rule snapshot is {fresh['age_days']} days old. Re-verify official firm rules before production research.")
+    elif fresh["grade"] == "AGING":
+        st.warning(f"Rule snapshot is {fresh['age_days']} days old and approaching the 30-day stale threshold.")
+    else:
+        st.success("Rule snapshot is fresh. Current verification date: 2026-08-12.")
+
+    with st.expander("How to read Rule Truth grades", expanded=False):
+        for k, v in GRADE_LABELS.items():
+            st.markdown(f"**{v}** — `{k}`")
+        st.caption("Only production-ready stages should enter trusted rankings by default. Engine-pending and research-only paths remain visible for study, but they are not silently scored as equivalent.")
 
     with st.sidebar:
-        st.subheader("📚 v3 Rule Filters")
+        st.subheader("📚 Rule Truth Filters")
         preset = st.selectbox(
             "Research preset",
             list(data["policy_presets"].keys()),
             format_func=lambda k: data["policy_presets"][k]["label"],
-            key="rulebook_preset"
+            key="rulebook_preset_v5e",
         )
         preset_cfg = data["policy_presets"][preset]
         st.caption(preset_cfg["description"])
@@ -56,35 +78,52 @@ def render_rulebook_page():
         selected_firms = st.multiselect("Firms", list(firm_options), format_func=lambda k: firm_options[k])
         sizes = sorted({r.account_size for r in rows})
         selected_sizes = st.multiselect("Account sizes", sizes, default=sizes)
+        ev_cons = sorted({r.evaluation_consistency for r in rows})
+        fd_cons = sorted({r.funded_consistency for r in rows})
+        selected_ev_cons = st.multiselect("Evaluation consistency", ev_cons)
+        selected_fd_cons = st.multiselect("Funded consistency", fd_cons)
+        grade_options = list(GRADE_LABELS)
+        selected_grades = st.multiselect("Rule Truth grade", grade_options, format_func=lambda x: GRADE_LABELS[x])
+        rankable_only = st.checkbox("Trusted/rankable stages only", value=False)
 
     filtered = filter_rows(
         rows,
         funded_drawdowns=preset_cfg["allowed_funded_drawdowns"],
         firms=selected_firms or None,
         sizes=selected_sizes or None,
-        active_only=True
+        evaluation_consistency=selected_ev_cons or None,
+        funded_consistency=selected_fd_cons or None,
+        rule_grades=selected_grades or None,
+        rankable_only=rankable_only,
+        active_only=True,
     )
 
     table = pd.DataFrame([{
         "Firm": r.firm,
-        "Product": r.product,
+        "Product / Path": r.product,
         "Size": f"${r.account_size/1000:.0f}K",
         "Acquisition": r.acquisition_model,
+        "Eval Consistency": r.evaluation_consistency,
+        "Funded Consistency": r.funded_consistency,
         "Eval DD": DD_LABELS.get(r.evaluation_drawdown, r.evaluation_drawdown or "—"),
         "Funded DD": DD_LABELS.get(r.funded_drawdown, r.funded_drawdown or "—"),
-        "Live DD": DD_LABELS.get(r.live_drawdown, r.live_drawdown or "—"),
         "Eval Target": _fmt_money(r.profit_target),
-        "Eval MLL": _fmt_money(r.evaluation_max_loss),
         "Funded MLL": _fmt_money(r.funded_max_loss),
         "Qual Days": r.payout_qualifying_days if r.payout_qualifying_days is not None else "—",
         "Qual $/Day": _fmt_money(r.payout_qualifying_profit),
         "Split": f"{r.payout_split_percent:.0f}%" if r.payout_split_percent is not None else "—",
-        "Verification": r.verification_status,
-        "v4 readiness": r.simulation_readiness,
+        "Eval Truth": GRADE_LABELS.get(r.evaluation_rule_grade, r.evaluation_rule_grade),
+        "Funded Truth": GRADE_LABELS.get(r.funded_rule_grade, r.funded_rule_grade),
     } for r in filtered])
 
-    st.subheader("Current product matrix")
+    st.subheader("Current Rule Truth matrix")
     st.dataframe(table, use_container_width=True, hide_index=True)
+
+    st.subheader("Stage simulation coverage")
+    tm = pd.DataFrame(rule_truth_matrix(data))
+    tm_show = tm[["firm", "product", "stage", "verified_date", "grade", "rankable"]].copy()
+    tm_show["grade"] = tm_show["grade"].map(lambda x: GRADE_LABELS.get(x, x))
+    st.dataframe(tm_show, use_container_width=True, hide_index=True)
 
     product_ids = []
     product_labels = {}
@@ -93,20 +132,29 @@ def render_rulebook_page():
             product_ids.append(product["product_id"])
             product_labels[product["product_id"]] = f"{firm['display_name']} — {product['display_name']}"
 
-    st.subheader("Inspect one product")
-    pid = st.selectbox("Product family", product_ids, format_func=lambda x: product_labels[x])
+    st.subheader("Inspect one product/path")
+    pid = st.selectbox("Product family", product_ids, format_func=lambda x: product_labels[x], key="v5e_product_inspector")
     details = product_details(data, pid)
-    firm = details["firm"]; product = details["product"]
+    firm = details["firm"]
+    product = details["product"]
 
     left, right = st.columns([2, 1])
     with left:
         st.markdown(f"### {product['display_name']}")
         st.write(f"**Status:** {product['status']}  |  **Verified:** {product['verified_date']}  |  **Verification:** {product.get('verification_status','UNKNOWN')}")
-        st.write(f"**Acquisition:** {product.get('acquisition_model','UNKNOWN')}  |  **v4 readiness:** {product.get('simulation_readiness','UNKNOWN')}")
+        st.write(f"**Acquisition:** {product.get('acquisition_model','UNKNOWN')}  |  **Engine readiness:** {product.get('simulation_readiness','UNKNOWN')}")
+        rt = product.get("rule_truth") or {}
+        if rt:
+            with st.expander("Rule Truth / unresolved behavior", expanded=True):
+                for stage in ("evaluation", "sim_funded", "live"):
+                    t = rt.get(stage) or {}
+                    st.markdown(f"**{stage.replace('_',' ').title()}:** {GRADE_LABELS.get(t.get('grade'), t.get('grade','—'))}")
+                    for reason in t.get("unmodeled_reasons") or []:
+                        st.caption(f"• {reason}")
         if product.get("notes"):
             st.warning(product["notes"])
         for size_s, sr in sorted(product["account_sizes"].items(), key=lambda kv: int(kv[0])):
-            with st.expander(f"${int(size_s):,} rules", expanded=False):
+            with st.expander(f"${int(size_s):,} current rules", expanded=False):
                 for stage in ("evaluation", "sim_funded", "live"):
                     if stage not in sr:
                         continue
@@ -117,14 +165,14 @@ def render_rulebook_page():
         urls = list(dict.fromkeys((firm.get("sources") or []) + (product.get("sources") or [])))
         for url in urls:
             st.markdown(f"- {url}")
-        st.markdown("### Household / firm limits")
+        st.markdown("### Firm limits already recorded")
         if firm.get("household_limits"):
             st.json(firm["household_limits"], expanded=True)
         else:
-            st.caption("Not yet encoded in v3.")
+            st.caption("No firm-level limit has been encoded yet.")
 
     st.divider()
     st.caption(
-        "v3 rule data is intentionally explicit about partial verification. A product marked RULES_PARTIAL_BEFORE_V4 is visible for research, "
-        "but StarBase will not execute it in the trusted v4 engine until the missing numeric rules are filled and tested."
+        "Step 26 Rule Truth principle: official semantics can be VERIFIED while simulation remains ENGINE PENDING. "
+        "StarBase must never turn an unimplemented rule into a generic payout/drawdown assumption just to fill a table."
     )

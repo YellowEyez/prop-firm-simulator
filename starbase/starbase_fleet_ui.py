@@ -1,4 +1,4 @@
-"""Streamlit UI for Project StarBase v5C Josh fleet economics + inventory."""
+"""Streamlit UI for Project StarBase v5E Josh fleet economics + rule-truth aware research."""
 from __future__ import annotations
 
 import streamlit as st
@@ -36,9 +36,9 @@ def _funded_options(rulebook):
 
 
 def render_fleet_page():
-    st.header("🏠 Josh Household — Fleet Economics + Fee Provenance (v5D)")
-    st.caption("StarBase Progress: 25/60 verified. Step 24 economics is certified from the uploaded v5C bundle. v5D implements Step 25 instrument/firm/platform-specific fee resolution and fee provenance.")
-    st.info("v5D remains funded-only and one product at a time, but commissions are no longer one generic fixed number. Fees resolve by firm/platform/instrument with an official-source snapshot or a clearly labeled manual override.")
+    st.header("🏠 Josh Household — Fleet Economics + Fee Provenance (v5E)")
+    st.caption("StarBase Progress: 26/60 verified. Steps 24-25 are deployment-certified. v5E implements Step 26 Rule Truth; products with verified rules but incomplete dedicated handlers are explicitly research-grade until Step 27 certifies their account mechanics.")
+    st.info("v5E remains funded-only and one product at a time. Instrument fees are resolved by firm/platform/instrument, while Rule Truth now separates current official semantics from lifecycle-engine readiness so incomplete products cannot masquerade as production-ready.")
 
     files, strategy_id, profile_id, saved_dataset = select_dataset_or_upload(
         key_prefix="v5b", default_strategy="Sydney_01", default_profile="1NQ"
@@ -286,5 +286,5 @@ def render_fleet_page():
             st.dataframe(run.payouts, use_container_width=True, hide_index=True)
     with tabs[7]:
         blob=build_fleet_bundle(run)
-        st.download_button("Download complete StarBase v5D analysis ZIP", blob, "StarBase_v5D_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
+        st.download_button("Download complete StarBase v5E analysis ZIP", blob, "StarBase_v5E_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
         st.caption("Includes household/session ledger, account inventory, trade routing, payout/cost/bottleneck/forfeiture ledgers, FEE_SNAPSHOT, RULE_SNAPSHOT and a compact REALISM_REPORT in JSON + Markdown for deeper ChatGPT analysis.")

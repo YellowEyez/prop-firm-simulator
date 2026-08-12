@@ -44,10 +44,31 @@ def test_lucid_funded_takes_rule_based_payout():
     assert abs(r.summary['ending_failure_floor']-50100)<1e-9
 
 
-def test_fundednext_payout_and_share_differ_from_lucid():
+def test_fundednext_current_promotional_share_differs_from_lucid():
     rb=load_rulebook()
     df=_ledger([{'day':d,'pnl':500,'mae':-100} for d in range(1,6)])
     r=run_stage(rb,df,LifecycleConfig('fundednext_flex',50000,'FUNDED_ONLY',commission_per_contract_round_trip=0),'sim_funded')
+    assert r.summary['payout_count']==1
+    assert abs(r.summary['gross_payouts_deducted']-1250)<1e-9
+    assert abs(r.summary['trader_wallet_cash']-1187.50)<1e-9
+    assert abs(r.summary['ending_failure_floor']-50100)<1e-9
+
+
+def test_fundednext_standard_80_percent_share_can_be_selected_explicitly():
+    rb=load_rulebook()
+    df=_ledger([{'day':d,'pnl':500,'mae':-100} for d in range(1,6)])
+    r=run_stage(
+        rb,
+        df,
+        LifecycleConfig(
+            'fundednext_flex',
+            50000,
+            'FUNDED_ONLY',
+            commission_per_contract_round_trip=0,
+            reward_share_override_percent=80,
+        ),
+        'sim_funded',
+    )
     assert r.summary['payout_count']==1
     assert abs(r.summary['gross_payouts_deducted']-1250)<1e-9
     assert abs(r.summary['trader_wallet_cash']-1000)<1e-9

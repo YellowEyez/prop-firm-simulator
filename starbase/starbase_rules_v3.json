@@ -1,7 +1,7 @@
 {
-  "schema_version": "3.0.0",
-  "rulebook_name": "Project StarBase Current Futures Prop Rulebook",
-  "verified_as_of": "2026-08-11",
+  "schema_version": "3.1.0",
+  "rulebook_name": "Project StarBase Rule Truth Layer v3.1",
+  "verified_as_of": "2026-08-12",
   "purpose": "Versioned, source-cited research rulebook. v3 is descriptive only; v4+ will execute these rules in the trusted state machine.",
   "drawdown_taxonomy": [
     "EOD_TRAILING",
@@ -48,7 +48,8 @@
       "firm_id": "apex",
       "display_name": "Apex Trader Funding",
       "household_limits": {
-        "sim_funded_max": 20
+        "sim_funded_max": 20,
+        "performance_accounts_max": 20
       },
       "sources": [
         "https://dashboard.apextraderfunding.com/agreement/user-agreement"
@@ -58,14 +59,15 @@
           "product_id": "apex_eod",
           "display_name": "Apex EOD Evaluation -> EOD PA",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
             "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-evaluations/",
             "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-performance-accounts-pa/",
             "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-payouts/",
+            "https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-drawdown-explained/",
             "https://apextraderfunding.com/help-center/additional-helpful-items/daily-loss-limit-explained/"
           ],
           "account_sizes": {
@@ -80,7 +82,16 @@
                 },
                 "min_days": 0,
                 "max_minis": 4,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "activation_window_days": 7,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "EVALUATION_ENDS_AT_TARGET_BEFORE_PA_LOCK_IS_RELEVANT",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 1000,
@@ -102,7 +113,39 @@
                     1000,
                     1000,
                     1000
-                  ]
+                  ],
+                  "payout_split_percent": 100
+                },
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "scaling_tiers": [
+                  {
+                    "profit_min": 0,
+                    "profit_max": 999,
+                    "max_minis": 1,
+                    "dll_amount": 500
+                  },
+                  {
+                    "profit_min": 1000,
+                    "profit_max": 1999,
+                    "max_minis": 2,
+                    "dll_amount": 500
+                  },
+                  {
+                    "profit_min": 2000,
+                    "profit_max": null,
+                    "max_minis": 2,
+                    "dll_amount": 1250
+                  }
+                ],
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -117,7 +160,16 @@
                 },
                 "min_days": 0,
                 "max_minis": 6,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "activation_window_days": 7,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "EVALUATION_ENDS_AT_TARGET_BEFORE_PA_LOCK_IS_RELEVANT",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 2000,
@@ -139,7 +191,45 @@
                     2500,
                     2500,
                     3000
-                  ]
+                  ],
+                  "payout_split_percent": 100
+                },
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "scaling_tiers": [
+                  {
+                    "profit_min": 0,
+                    "profit_max": 1499,
+                    "max_minis": 2,
+                    "dll_amount": 1000
+                  },
+                  {
+                    "profit_min": 1500,
+                    "profit_max": 2999,
+                    "max_minis": 3,
+                    "dll_amount": 1000
+                  },
+                  {
+                    "profit_min": 3000,
+                    "profit_max": 5999,
+                    "max_minis": 4,
+                    "dll_amount": 2000
+                  },
+                  {
+                    "profit_min": 6000,
+                    "profit_max": null,
+                    "max_minis": 4,
+                    "dll_amount": 3000
+                  }
+                ],
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -154,7 +244,16 @@
                 },
                 "min_days": 0,
                 "max_minis": 8,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "activation_window_days": 7,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "EVALUATION_ENDS_AT_TARGET_BEFORE_PA_LOCK_IS_RELEVANT",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 3000,
@@ -176,7 +275,51 @@
                     3000,
                     4000,
                     4000
-                  ]
+                  ],
+                  "payout_split_percent": 100
+                },
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "scaling_tiers": [
+                  {
+                    "profit_min": 0,
+                    "profit_max": 1999,
+                    "max_minis": 3,
+                    "dll_amount": 1750
+                  },
+                  {
+                    "profit_min": 2000,
+                    "profit_max": 2999,
+                    "max_minis": 4,
+                    "dll_amount": 1750
+                  },
+                  {
+                    "profit_min": 3000,
+                    "profit_max": 4999,
+                    "max_minis": 5,
+                    "dll_amount": 1750
+                  },
+                  {
+                    "profit_min": 5000,
+                    "profit_max": 9999,
+                    "max_minis": 6,
+                    "dll_amount": 2500
+                  },
+                  {
+                    "profit_min": 10000,
+                    "profit_max": null,
+                    "max_minis": 6,
+                    "dll_amount": 3500
+                  }
+                ],
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -191,7 +334,16 @@
                 },
                 "min_days": 0,
                 "max_minis": 12,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "activation_window_days": 7,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "EVALUATION_ENDS_AT_TARGET_BEFORE_PA_LOCK_IS_RELEVANT",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 4000,
@@ -213,9 +365,74 @@
                     3000,
                     4000,
                     5000
-                  ]
+                  ],
+                  "payout_split_percent": 100
+                },
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "scaling_tiers": [
+                  {
+                    "profit_min": 0,
+                    "profit_max": 1999,
+                    "max_minis": 4,
+                    "dll_amount": 2500
+                  },
+                  {
+                    "profit_min": 2000,
+                    "profit_max": 2999,
+                    "max_minis": 5,
+                    "dll_amount": 2500
+                  },
+                  {
+                    "profit_min": 3000,
+                    "profit_max": 4999,
+                    "max_minis": 7,
+                    "dll_amount": 2500
+                  },
+                  {
+                    "profit_min": 5000,
+                    "profit_max": 9999,
+                    "max_minis": 10,
+                    "dll_amount": 3000
+                  },
+                  {
+                    "profit_min": 10000,
+                    "profit_max": null,
+                    "max_minis": 10,
+                    "dll_amount": 4000
+                  }
+                ],
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "breach_frequency": "CONTINUOUS_INTRADAY",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Current PA DLL and max-contract limits are tier-based by EOD profit; v5E documents the tiers but the historical/fleet engine does not yet enforce every tier transition."
+              ]
+            },
+            "live": {
+              "grade": "NOT_MODELED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Apex live-account transition/execution is deferred to StarBase Steps 28-31."
+              ]
             }
           }
         },
@@ -223,12 +440,14 @@
           "product_id": "apex_intraday",
           "display_name": "Apex Intraday Trailing Evaluation -> Intraday PA",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
           "sources": [
             "https://apextraderfunding.com/help-center/intraday-trailing-drawdown-accounts/intraday-trailing-drawdown-evaluations/",
+            "https://apextraderfunding.com/help-center/intraday-trailing-drawdown-accounts/intraday-trailing-drawdown-performance-accounts-pa/",
+            "https://apextraderfunding.com/help-center/intraday-trailing-drawdown-accounts/intraday-trailing-drawdown-explained/",
             "https://apextraderfunding.com/help-center/uncategorized/intraday-trailing-drawdown-payouts/"
           ],
           "account_sizes": {
@@ -242,7 +461,13 @@
                   "action": "NONE"
                 },
                 "min_days": 0,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "max_minis": 4,
+                "platform_variant_rule": {
+                  "RITHMIC_WEALTHCHARTS": "threshold locks at profit target after balance reaches target + $2,000",
+                  "TRADOVATE": "trailing continues indefinitely"
+                }
               },
               "sim_funded": {
                 "max_loss": 1000,
@@ -252,7 +477,14 @@
                   "qualifying_day_profit": 100,
                   "minimum_payout": 500,
                   "maximum_payouts": 6
-                }
+                },
+                "max_minis": 2,
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "profit_split_percent": 100,
+                "inactivity_rule": "At least two $50 net-profit days within 30 consecutive calendar days."
               }
             },
             "50000": {
@@ -265,7 +497,13 @@
                   "action": "NONE"
                 },
                 "min_days": 0,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "max_minis": 6,
+                "platform_variant_rule": {
+                  "RITHMIC_WEALTHCHARTS": "threshold locks at profit target after balance reaches target + $2,000",
+                  "TRADOVATE": "trailing continues indefinitely"
+                }
               },
               "sim_funded": {
                 "max_loss": 2000,
@@ -275,7 +513,14 @@
                   "qualifying_day_profit": 200,
                   "minimum_payout": 500,
                   "maximum_payouts": 6
-                }
+                },
+                "max_minis": 4,
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "profit_split_percent": 100,
+                "inactivity_rule": "At least two $50 net-profit days within 30 consecutive calendar days."
               }
             },
             "100000": {
@@ -288,7 +533,13 @@
                   "action": "NONE"
                 },
                 "min_days": 0,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "max_minis": 8,
+                "platform_variant_rule": {
+                  "RITHMIC_WEALTHCHARTS": "threshold locks at profit target after balance reaches target + $2,000",
+                  "TRADOVATE": "trailing continues indefinitely"
+                }
               },
               "sim_funded": {
                 "max_loss": 3000,
@@ -298,7 +549,14 @@
                   "qualifying_day_profit": 250,
                   "minimum_payout": 500,
                   "maximum_payouts": 6
-                }
+                },
+                "max_minis": 6,
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "profit_split_percent": 100,
+                "inactivity_rule": "At least two $50 net-profit days within 30 consecutive calendar days."
               }
             },
             "150000": {
@@ -311,7 +569,13 @@
                   "action": "NONE"
                 },
                 "min_days": 0,
-                "access_calendar_days": 30
+                "access_calendar_days": 30,
+                "consistency_percent": null,
+                "max_minis": 12,
+                "platform_variant_rule": {
+                  "RITHMIC_WEALTHCHARTS": "threshold locks at profit target after balance reaches target + $2,000",
+                  "TRADOVATE": "trailing continues indefinitely"
+                }
               },
               "sim_funded": {
                 "max_loss": 4000,
@@ -321,8 +585,38 @@
                   "qualifying_day_profit": 300,
                   "minimum_payout": 500,
                   "maximum_payouts": 6
-                }
+                },
+                "max_minis": 10,
+                "dll": {
+                  "mode": "TIERED_SOFT_PAUSE",
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "profit_split_percent": 100,
+                "inactivity_rule": "At least two $50 net-profit days within 30 consecutive calendar days."
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "VARIANT_SELECTION_REQUIRED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Platform selection is required because Tradovate and Rithmic/WealthCharts use different evaluation trailing-stop behavior."
+              ]
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Intraday MFE/MAE ordering is path-sensitive and the dedicated Apex Intraday payout handler is not yet trusted."
+              ]
+            },
+            "live": {
+              "grade": "NOT_MODELED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live stage deferred to Steps 28-31."
+              ]
             }
           }
         }
@@ -345,10 +639,10 @@
           "product_id": "lucid_flex",
           "display_name": "LucidFlex",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
             "https://support.lucidtrading.com/en/articles/12945790-lucidflex-evaluation-account",
             "https://support.lucidtrading.com/en/articles/12945795-lucidflex-funded-account",
@@ -366,7 +660,15 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 2
+                "max_minis": 2,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 1000,
@@ -384,6 +686,13 @@
                   "maximum_payouts": 5,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90
+                },
+                "consistency_percent": null,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100_OR_PAYOUT",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -397,7 +706,15 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 4
+                "max_minis": 4,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 2000,
@@ -415,6 +732,13 @@
                   "maximum_payouts": 5,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90
+                },
+                "consistency_percent": null,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100_OR_PAYOUT",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -428,7 +752,15 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 6
+                "max_minis": 6,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 3000,
@@ -446,6 +778,13 @@
                   "maximum_payouts": 5,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90
+                },
+                "consistency_percent": null,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100_OR_PAYOUT",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -459,7 +798,15 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 10
+                "max_minis": 10,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
+                }
               },
               "sim_funded": {
                 "max_loss": 4500,
@@ -477,8 +824,34 @@
                   "maximum_payouts": 5,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90
+                },
+                "consistency_percent": null,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100_OR_PAYOUT",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Lucid live-transition lifecycle is deferred to Steps 28-31."
+              ]
             }
           }
         },
@@ -486,10 +859,10 @@
           "product_id": "lucid_direct",
           "display_name": "LucidDirect",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "DIRECT_SIM_FUNDED",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
             "https://support.lucidtrading.com/en/articles/12890148-luciddirect-funded-account",
             "https://support.lucidtrading.com/en/articles/12890192-luciddirect-drawdown",
@@ -503,7 +876,10 @@
                 "drawdown_type": "EOD_TRAILING",
                 "dll": {
                   "amount": 1200,
-                  "action": "SOFT_PAUSE_SESSION"
+                  "action": "SOFT_PAUSE_SESSION",
+                  "scales_after_initial_trail": true,
+                  "scale_formula": "highest_eod_account_profit * 0.60",
+                  "never_decreases": true
                 },
                 "max_minis": 4,
                 "payout": {
@@ -519,6 +895,13 @@
                     2500
                   ],
                   "profit_split_percent": 90
+                },
+                "consistency_percent": 20,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -528,7 +911,10 @@
                 "drawdown_type": "EOD_TRAILING",
                 "dll": {
                   "amount": 2100,
-                  "action": "SOFT_PAUSE_SESSION"
+                  "action": "SOFT_PAUSE_SESSION",
+                  "scales_after_initial_trail": true,
+                  "scale_formula": "highest_eod_account_profit * 0.60",
+                  "never_decreases": true
                 },
                 "max_minis": 6,
                 "payout": {
@@ -544,6 +930,13 @@
                     3000
                   ],
                   "profit_split_percent": 90
+                },
+                "consistency_percent": 20,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
             },
@@ -553,7 +946,10 @@
                 "drawdown_type": "EOD_TRAILING",
                 "dll": {
                   "amount": 3000,
-                  "action": "SOFT_PAUSE_SESSION"
+                  "action": "SOFT_PAUSE_SESSION",
+                  "scales_after_initial_trail": true,
+                  "scale_formula": "highest_eod_account_profit * 0.60",
+                  "never_decreases": true
                 },
                 "max_minis": 10,
                 "payout": {
@@ -569,8 +965,38 @@
                     3500
                   ],
                   "profit_split_percent": 90
+                },
+                "consistency_percent": 20,
+                "drawdown_semantics": {
+                  "floor_update_basis": "END_OF_SESSION",
+                  "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+                  "floor_lock_behavior": "LOCK_AT_START_PLUS_100",
+                  "verification_status": "OFFICIAL_VERIFIED"
                 }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "NOT_MODELED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "LucidDirect is direct simulated funding; there is no evaluation stage."
+              ]
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "LucidScale DLL replaces the fixed DLL after the initial trail balance; the current core runner does not yet dynamically recompute the 60% LucidScale DLL."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live transition is discretionary and deferred to Steps 28-31."
+              ]
             }
           }
         },
@@ -578,17 +1004,17 @@
           "product_id": "lucid_daily",
           "display_name": "LucidDaily",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION_WITH_OPTIONS",
-          "simulation_readiness": "RULE_VARIANTS_REQUIRE_CHECKOUT_FLAGS",
+          "simulation_readiness": "VARIANT_SELECTION_REQUIRED",
           "sources": [
             "https://support.lucidtrading.com/en/articles/15996664-luciddaily-evaluation",
             "https://support.lucidtrading.com/en/articles/15997244-luciddaily-funded-account",
-            "https://support.lucidtrading.com/en/articles/15998425-luciddaily-drawdown",
-            "https://support.lucidtrading.com/en/articles/16085900-luciddaily-daily-loss-limit",
             "https://support.lucidtrading.com/en/articles/15997266-luciddaily-payouts",
-            "https://support.lucidtrading.com/en/articles/16010520-luciddaily-live"
+            "https://support.lucidtrading.com/en/articles/15998425-luciddaily-drawdown",
+            "https://support.lucidtrading.com/en/articles/16033858-luciddaily-customization",
+            "https://support.lucidtrading.com/en/articles/16085900-luciddaily-daily-loss-limit"
           ],
           "account_sizes": {
             "50000": {
@@ -598,7 +1024,19 @@
                 "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY",
                 "consistency_percent": 50,
                 "dll_optional": 1200,
-                "max_minis": 4
+                "max_minis": 4,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 1200,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                }
               },
               "sim_funded": {
                 "max_loss": 2000,
@@ -609,9 +1047,23 @@
                   "minimum_payout": 500,
                   "buffer_balance": 52100,
                   "profit_split_percent": 90,
-                  "daily_payouts": true,
-                  "max_daily_profit_before_live": 8000
-                }
+                  "payout_cadence": "DAILY",
+                  "maximum_payout": "ALL_SIM_PROFIT_ABOVE_BUFFER",
+                  "positive_cycle_profit_required": true
+                },
+                "consistency_percent": null,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 1200,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                },
+                "max_daily_sim_profit_live_trigger": 8000,
+                "news_rule": "Hard breach if holding/opening through red-folder news window: flat 1 minute before through 1 minute after."
               },
               "live": {
                 "drawdown_type": "EOD_TRAILING",
@@ -632,7 +1084,19 @@
                 "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY",
                 "consistency_percent": 50,
                 "dll_optional": 1800,
-                "max_minis": 6
+                "max_minis": 6,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 1800,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                }
               },
               "sim_funded": {
                 "max_loss": 3000,
@@ -643,9 +1107,23 @@
                   "minimum_payout": 500,
                   "buffer_balance": 103100,
                   "profit_split_percent": 90,
-                  "daily_payouts": true,
-                  "max_daily_profit_before_live": 10000
-                }
+                  "payout_cadence": "DAILY",
+                  "maximum_payout": "ALL_SIM_PROFIT_ABOVE_BUFFER",
+                  "positive_cycle_profit_required": true
+                },
+                "consistency_percent": null,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 1800,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                },
+                "max_daily_sim_profit_live_trigger": 10000,
+                "news_rule": "Hard breach if holding/opening through red-folder news window: flat 1 minute before through 1 minute after."
               },
               "live": {
                 "drawdown_type": "EOD_TRAILING",
@@ -666,7 +1144,19 @@
                 "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY",
                 "consistency_percent": 50,
                 "dll_optional": 2700,
-                "max_minis": 10
+                "max_minis": 10,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 2700,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                }
               },
               "sim_funded": {
                 "max_loss": 4500,
@@ -677,9 +1167,23 @@
                   "minimum_payout": 500,
                   "buffer_balance": 154600,
                   "profit_split_percent": 90,
-                  "daily_payouts": true,
-                  "max_daily_profit_before_live": 12000
-                }
+                  "payout_cadence": "DAILY",
+                  "maximum_payout": "ALL_SIM_PROFIT_ABOVE_BUFFER",
+                  "positive_cycle_profit_required": true
+                },
+                "consistency_percent": null,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 2700,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                },
+                "max_daily_sim_profit_live_trigger": 12000,
+                "news_rule": "Hard breach if holding/opening through red-folder news window: flat 1 minute before through 1 minute after."
               },
               "live": {
                 "drawdown_type": "EOD_TRAILING",
@@ -692,6 +1196,76 @@
                 "max_minis": 10,
                 "daily_payouts": true
               }
+            },
+            "25000": {
+              "evaluation": {
+                "profit_target": 1250,
+                "max_loss": 1000,
+                "drawdown_type": "SELECTABLE_EOD_OR_INTRADAY",
+                "consistency_percent": 50,
+                "max_minis": 2,
+                "no_time_limit": true,
+                "activation_fee": 0,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 600,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                }
+              },
+              "sim_funded": {
+                "max_loss": 1000,
+                "drawdown_type": "INTRADAY_TRAILING",
+                "consistency_percent": null,
+                "max_minis": 2,
+                "dll_variant": {
+                  "ON": {
+                    "amount": 600,
+                    "action": "SOFT_PAUSE_SESSION"
+                  },
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  }
+                },
+                "payout": {
+                  "minimum_payout": 500,
+                  "buffer_balance": 26100,
+                  "profit_split_percent": 90,
+                  "payout_cadence": "DAILY",
+                  "maximum_payout": "ALL_SIM_PROFIT_ABOVE_BUFFER",
+                  "positive_cycle_profit_required": true
+                },
+                "max_daily_sim_profit_live_trigger": 6000,
+                "news_rule": "Hard breach if holding/opening through red-folder news window: flat 1 minute before through 1 minute after."
+              }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "VARIANT_SELECTION_REQUIRED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Checkout selection required: evaluation drawdown EOD vs Intraday and DLL ON vs OFF."
+              ]
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated LucidDaily payout/news-calendar handler is not yet implemented; red-folder news requires event-calendar data."
+              ]
+            },
+            "live": {
+              "grade": "NOT_MODELED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Automatic live trigger semantics are documented but live execution is deferred to Steps 28-31."
+              ]
             }
           }
         }
@@ -701,21 +1275,22 @@
       "firm_id": "tradeify",
       "display_name": "Tradeify",
       "household_limits": {
-        "sim_funded_max": 5
+        "sim_funded_max": 5,
+        "evaluation_purchases_per_30_days": 15,
+        "resets_per_evaluation_per_30_days": 10
       },
       "products": [
         {
           "product_id": "tradeify_select_flex",
           "display_name": "Tradeify Select -> Flex",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
             "https://help.tradeify.co/en/articles/12853921-select-evaluation-accounts",
-            "https://help.tradeify.co/en/articles/12853966-select-flex-and-select-daily-payout-policies",
-            "https://help.tradeify.co/en/articles/14369021-tradeify-pricing-reference"
+            "https://help.tradeify.co/en/articles/12853966-select-flex-and-select-daily-payout-policies"
           ],
           "account_sizes": {
             "50000": {
@@ -740,8 +1315,16 @@
                   "qualifying_day_profit": 150,
                   "withdrawal_fraction": 0.5,
                   "maximum_payout": 3000,
-                  "profit_split_percent": 90
-                }
+                  "profit_split_percent": 90,
+                  "positive_cycle_profit_after_first_required": true
+                },
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "starting_max_minis": 2,
+                "max_minis": 4,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
               }
             },
             "100000": {
@@ -766,8 +1349,16 @@
                   "qualifying_day_profit": 200,
                   "withdrawal_fraction": 0.5,
                   "maximum_payout": 4000,
-                  "profit_split_percent": 90
-                }
+                  "profit_split_percent": 90,
+                  "positive_cycle_profit_after_first_required": true
+                },
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "starting_max_minis": 3,
+                "max_minis": 8,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
               }
             },
             "150000": {
@@ -792,9 +1383,72 @@
                   "qualifying_day_profit": 250,
                   "withdrawal_fraction": 0.5,
                   "maximum_payout": 5000,
-                  "profit_split_percent": 90
-                }
+                  "profit_split_percent": 90,
+                  "positive_cycle_profit_after_first_required": true
+                },
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "starting_max_minis": 3,
+                "max_minis": 12,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
               }
+            },
+            "25000": {
+              "evaluation": {
+                "profit_target": 1500,
+                "max_loss": 1000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 40,
+                "min_days": 3,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "max_minis": 1
+              },
+              "sim_funded": {
+                "max_loss": 1000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": null,
+                "max_minis": 2,
+                "payout": {
+                  "qualifying_days": 5,
+                  "qualifying_day_profit": 100,
+                  "withdrawal_fraction": 0.5,
+                  "maximum_payout": 1250,
+                  "profit_split_percent": 90,
+                  "positive_cycle_profit_after_first_required": true
+                },
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "starting_max_minis": 1,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
+              }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Funded contract scaling is EOD-tiered; the rules are verified but the current fleet does not yet reject trades whose exact profile exceeds the active tier."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Elite Live transition is discretionary after eligibility thresholds; full live engine deferred."
+              ]
             }
           }
         },
@@ -802,14 +1456,13 @@
           "product_id": "tradeify_lightning",
           "display_name": "Tradeify Lightning Funded",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "DIRECT_SIM_FUNDED",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
           "sources": [
-            "https://help.tradeify.co/en/articles/10495938-lightning-funded-accounts",
             "https://help.tradeify.co/en/articles/10495932-lightning-funded-account-payout-policy",
-            "https://help.tradeify.co/en/articles/14369021-tradeify-pricing-reference"
+            "https://help.tradeify.co/en/articles/10468321-rules-daily-loss-limit"
           ],
           "account_sizes": {
             "50000": {
@@ -837,7 +1490,8 @@
                     2000,
                     2500
                   ],
-                  "profit_split_percent": 90
+                  "profit_split_percent": 90,
+                  "no_minimum_trading_days": true
                 }
               }
             },
@@ -866,7 +1520,8 @@
                     2500,
                     3000
                   ],
-                  "profit_split_percent": 90
+                  "profit_split_percent": 90,
+                  "no_minimum_trading_days": true
                 }
               }
             },
@@ -895,9 +1550,209 @@
                     3000,
                     3500
                   ],
-                  "profit_split_percent": 90
+                  "profit_split_percent": 90,
+                  "no_minimum_trading_days": true
                 }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "NOT_MODELED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Lightning is direct funded; no evaluation stage."
+              ]
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated Lightning sequential consistency/profit-goal payout handler is not yet implemented."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Elite Live transition is discretionary and deferred."
+              ]
+            }
+          }
+        },
+        {
+          "product_id": "tradeify_select_daily",
+          "display_name": "Tradeify Select -> Daily",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
+          "acquisition_model": "EVALUATION",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
+          "sources": [
+            "https://help.tradeify.co/en/articles/12853921-select-evaluation-accounts",
+            "https://help.tradeify.co/en/articles/12853966-select-flex-and-select-daily-payout-policies"
+          ],
+          "account_sizes": {
+            "50000": {
+              "evaluation": {
+                "profit_target": 3000,
+                "max_loss": 2000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 40,
+                "min_days": 3,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "max_minis": 4
+              },
+              "sim_funded": {
+                "max_loss": 2000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": null,
+                "payout": {
+                  "payout_cadence": "DAILY",
+                  "buffer_amount": 2100,
+                  "minimum_payout": 250,
+                  "maximum_payout": 1000,
+                  "cycle_profit_multiplier": 2.0,
+                  "positive_cycle_profit_required": true,
+                  "profit_split_percent": 90
+                },
+                "dll": {
+                  "amount": 1000,
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "starting_max_minis": 2,
+                "max_minis": 4,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
+              }
+            },
+            "100000": {
+              "evaluation": {
+                "profit_target": 6000,
+                "max_loss": 3000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 40,
+                "min_days": 3,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "max_minis": 8
+              },
+              "sim_funded": {
+                "max_loss": 2500,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": null,
+                "payout": {
+                  "payout_cadence": "DAILY",
+                  "buffer_amount": 2600,
+                  "minimum_payout": 250,
+                  "maximum_payout": 1500,
+                  "cycle_profit_multiplier": 2.0,
+                  "positive_cycle_profit_required": true,
+                  "profit_split_percent": 90
+                },
+                "dll": {
+                  "amount": 1250,
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "starting_max_minis": 3,
+                "max_minis": 8,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
+              }
+            },
+            "150000": {
+              "evaluation": {
+                "profit_target": 9000,
+                "max_loss": 4500,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 40,
+                "min_days": 3,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "max_minis": 12
+              },
+              "sim_funded": {
+                "max_loss": 3500,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": null,
+                "payout": {
+                  "payout_cadence": "DAILY",
+                  "buffer_amount": 3600,
+                  "minimum_payout": 250,
+                  "maximum_payout": 2500,
+                  "cycle_profit_multiplier": 2.0,
+                  "positive_cycle_profit_required": true,
+                  "profit_split_percent": 90
+                },
+                "dll": {
+                  "amount": 1750,
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "starting_max_minis": 3,
+                "max_minis": 12,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
+              }
+            },
+            "25000": {
+              "evaluation": {
+                "profit_target": 1500,
+                "max_loss": 1000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 40,
+                "min_days": 3,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "max_minis": 1
+              },
+              "sim_funded": {
+                "max_loss": 1000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": null,
+                "max_minis": 2,
+                "payout": {
+                  "payout_cadence": "DAILY",
+                  "buffer_amount": 1100,
+                  "minimum_payout": 250,
+                  "maximum_payout": 600,
+                  "cycle_profit_multiplier": 2.0,
+                  "positive_cycle_profit_required": true,
+                  "profit_split_percent": 90
+                },
+                "dll": {
+                  "amount": 500,
+                  "action": "SOFT_PAUSE_SESSION"
+                },
+                "starting_max_minis": 1,
+                "drawdown_lock_behavior": "LOCK_AT_START_PLUS_100_NATURALLY_OR_ON_PAYOUT"
+              }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated Select Daily payout/buffer/DLL lifecycle handler is not yet implemented."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Elite Live transition remains discretionary and deferred."
+              ]
             }
           }
         }
@@ -916,15 +1771,16 @@
           "product_id": "fundednext_flex",
           "display_name": "FundedNext Futures Flex",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
-            "https://helpfutures.fundednext.com/en/articles/14878840-what-is-the-profit-target-in-the-fundednext-futures-flex-challenge",
+            "https://helpfutures.fundednext.com/en/articles/14878751-what-is-fundednext-futures-flex-challenge",
             "https://helpfutures.fundednext.com/en/articles/14878830-how-do-i-pass-fundednext-futures-flex-challenge",
+            "https://helpfutures.fundednext.com/en/articles/14262297-what-is-the-contract-limit-policy-at-fundednext-futures",
             "https://helpfutures.fundednext.com/en/articles/14878865-what-are-the-performance-reward-eligibility-criteria-for-flex-fundednext-account",
-            "https://helpfutures.fundednext.com/en/articles/14261075-how-many-accounts-can-i-hold-with-fundednext-futures-and-what-is-the-maximum-allocation-available"
+            "https://helpfutures.fundednext.com/en/articles/15529326-futures-flex-95-reward-share-add-on-offer"
           ],
           "account_sizes": {
             "50000": {
@@ -937,7 +1793,8 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 4
+                "max_minis": 3,
+                "no_time_limit": true
               },
               "sim_funded": {
                 "max_loss": 1500,
@@ -950,8 +1807,29 @@
                   "minimum_payout": 250,
                   "maximum_payout": 1500,
                   "withdrawal_fraction": 0.5,
-                  "profit_split_percent": 80,
-                  "maximum_payouts": 5
+                  "profit_split_percent": 95,
+                  "maximum_payouts": 5,
+                  "reward_share_variants": {
+                    "STANDARD": 80,
+                    "PAID_ADDON": 90,
+                    "CURRENT_PROMOTIONAL_NEW_PURCHASE": 95
+                  },
+                  "promotional_95_addon_status": "FREE_ON_NEW_PURCHASES_UNTIL_FURTHER_NOTICE_AS_OF_2026_08_12",
+                  "reset_reverts_to_standard_after_offer_ends": true,
+                  "post_first_payout_mll_floor": 50100,
+                  "current_new_purchase_reward_share_percent": 95,
+                  "withdrawal_processing_fee_percent_max": 3.5
+                },
+                "max_minis": 3,
+                "live_review": {
+                  "eligibility": [
+                    "5 performance reward cycles from one account",
+                    "exceptional performance record",
+                    "prior live trading experience"
+                  ],
+                  "selection": "DISCRETIONARY",
+                  "on_selection": "ALL_FUNDEDNEXT_ACCOUNTS_CONCLUDED_AND_SIMULATED_PROFIT_FORFEITED",
+                  "combined_flex_live_deposit_cap": 10000
                 }
               }
             },
@@ -965,7 +1843,8 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 5
+                "max_minis": 5,
+                "no_time_limit": true
               },
               "sim_funded": {
                 "max_loss": 2500,
@@ -978,8 +1857,29 @@
                   "minimum_payout": 250,
                   "maximum_payout": 2500,
                   "withdrawal_fraction": 0.5,
-                  "profit_split_percent": 80,
-                  "maximum_payouts": 5
+                  "profit_split_percent": 95,
+                  "maximum_payouts": 5,
+                  "reward_share_variants": {
+                    "STANDARD": 80,
+                    "PAID_ADDON": 90,
+                    "CURRENT_PROMOTIONAL_NEW_PURCHASE": 95
+                  },
+                  "promotional_95_addon_status": "FREE_ON_NEW_PURCHASES_UNTIL_FURTHER_NOTICE_AS_OF_2026_08_12",
+                  "reset_reverts_to_standard_after_offer_ends": true,
+                  "post_first_payout_mll_floor": 100100,
+                  "current_new_purchase_reward_share_percent": 95,
+                  "withdrawal_processing_fee_percent_max": 3.5
+                },
+                "max_minis": 5,
+                "live_review": {
+                  "eligibility": [
+                    "5 performance reward cycles from one account",
+                    "exceptional performance record",
+                    "prior live trading experience"
+                  ],
+                  "selection": "DISCRETIONARY",
+                  "on_selection": "ALL_FUNDEDNEXT_ACCOUNTS_CONCLUDED_AND_SIMULATED_PROFIT_FORFEITED",
+                  "combined_flex_live_deposit_cap": 10000
                 }
               }
             },
@@ -993,7 +1893,8 @@
                   "amount": null,
                   "action": "NONE"
                 },
-                "max_minis": 8
+                "max_minis": 8,
+                "no_time_limit": true
               },
               "sim_funded": {
                 "max_loss": 4000,
@@ -1006,10 +1907,53 @@
                   "minimum_payout": 250,
                   "maximum_payout": 4000,
                   "withdrawal_fraction": 0.5,
-                  "profit_split_percent": 80,
-                  "maximum_payouts": 5
+                  "profit_split_percent": 95,
+                  "maximum_payouts": 5,
+                  "reward_share_variants": {
+                    "STANDARD": 80,
+                    "PAID_ADDON": 90,
+                    "CURRENT_PROMOTIONAL_NEW_PURCHASE": 95
+                  },
+                  "promotional_95_addon_status": "FREE_ON_NEW_PURCHASES_UNTIL_FURTHER_NOTICE_AS_OF_2026_08_12",
+                  "reset_reverts_to_standard_after_offer_ends": true,
+                  "post_first_payout_mll_floor": 150100,
+                  "current_new_purchase_reward_share_percent": 95,
+                  "withdrawal_processing_fee_percent_max": 3.5
+                },
+                "max_minis": 8,
+                "live_review": {
+                  "eligibility": [
+                    "5 performance reward cycles from one account",
+                    "exceptional performance record",
+                    "prior live trading experience"
+                  ],
+                  "selection": "DISCRETIONARY",
+                  "on_selection": "ALL_FUNDEDNEXT_ACCOUNTS_CONCLUDED_AND_SIMULATED_PROFIT_FORFEITED",
+                  "combined_flex_live_deposit_cap": 10000
                 }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "VARIANT_SELECTION_REQUIRED",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Reward share depends on purchase/add-on/reset history (80%, 90%, or current 95% promotion).",
+                "Performance Reward withdrawal processing can cost up to 3.5% depending on withdrawal method; the trusted net-cash engine needs the chosen method/fee."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live selection is discretionary; exact transition timing cannot be deterministic from trade history alone."
+              ]
             }
           }
         }
@@ -1023,10 +1967,10 @@
           "product_id": "mffu_flex_50k",
           "display_name": "MFFU Flex 50K",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "READY_FOR_TRUSTED_CORE",
           "sources": [
             "https://help.myfundedfutures.com/en/articles/15072271-flex-plan-50-000-a-comprehensive-guide"
           ],
@@ -1072,6 +2016,31 @@
                   "profit_split_percent": 80,
                   "maximum_payouts": 5,
                   "post_first_payout_floor": 100
+                },
+                "scaling_tiers": [
+                  {
+                    "profit_min": 0,
+                    "profit_max": 1499.99,
+                    "max_minis": 1
+                  },
+                  {
+                    "profit_min": 1500,
+                    "profit_max": 1999.99,
+                    "max_minis": 2
+                  },
+                  {
+                    "profit_min": 2000,
+                    "profit_max": null,
+                    "max_minis": 3
+                  }
+                ],
+                "live_transition": {
+                  "trigger_any": [
+                    "5 consecutive approved payouts on same account",
+                    "$100,000 total simulated payout cap",
+                    "risk-team review"
+                  ],
+                  "selection_or_review": "MIXED_AUTOMATIC_OR_DISCRETIONARY"
                 }
               },
               "live": {
@@ -1089,16 +2058,37 @@
                 "post_breach_cooldown_days": 21
               }
             }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Current Flex funded max-contract scaling is profit-tiered (1→2→3 minis); the rules are encoded but tier enforcement is not yet trusted in the fleet engine."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live parameters are documented, but multi-account transition/cooldown orchestration is deferred to Steps 28-31."
+              ]
+            }
           }
         },
         {
           "product_id": "mffu_rapid_50k",
           "display_name": "MFFU Rapid 50K",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "EVALUATION",
-          "simulation_readiness": "INTRADAY_FUNDED_RESEARCH",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
           "sources": [
             "https://help.myfundedfutures.com/en/articles/13134709-rapid-plan-50k-a-comprehensive-look"
           ],
@@ -1115,8 +2105,40 @@
               "sim_funded": {
                 "max_loss": 2000,
                 "drawdown_type": "INTRADAY_TRAILING",
-                "consistency_percent": null
+                "consistency_percent": null,
+                "starting_pnl_balance": 0,
+                "max_minis": 5,
+                "news_rule": "Tier-1 news restriction applies in sim-funded stage per plan guide.",
+                "payout": {
+                  "payout_cadence": "DAILY_AFTER_24H_FROM_FIRST_TRADE",
+                  "buffer_amount": 2100,
+                  "minimum_payout": 500,
+                  "profit_split_percent": 90,
+                  "consistency_percent": null,
+                  "post_first_payout_mll_floor": 100
+                }
               }
+            }
+          },
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated Rapid intraday-trailing payout handler and exact intrabar path ordering are not yet implemented."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Rapid live transition is not yet encoded in trusted lifecycle engine."
+              ]
             }
           }
         }
@@ -1133,15 +2155,15 @@
           "product_id": "topstep_standard",
           "display_name": "Topstep Trading Combine -> XFA Standard",
           "status": "ACTIVE",
-          "verification_status": "VERIFIED_CORE",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "SUBSCRIPTION_EVALUATION",
-          "simulation_readiness": "READY_FOR_V4_CORE",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
           "sources": [
             "https://help.topstep.com/en/articles/8284197-trading-combine-parameters",
-            "https://help.topstep.com/en/articles/8284204-what-is-the-maximum-loss-limit",
             "https://help.topstep.com/en/articles/8284215-express-funded-account-parameters",
-            "https://help.topstep.com/en/articles/8284233-topstep-payout-policy"
+            "https://help.topstep.com/en/articles/8284233-topstep-payout-policy",
+            "https://help.topstep.com/en/articles/10490293-daily-loss-limit-in-the-trading-combine-and-express-funded-account"
           ],
           "account_sizes": {
             "50000": {
@@ -1150,7 +2172,19 @@
                 "max_loss": 2000,
                 "drawdown_type": "EOD_TRAILING",
                 "consistency_percent": 50,
-                "max_minis": 5
+                "max_minis": 5,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 1000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
               },
               "sim_funded": {
                 "starting_pnl_balance": 0,
@@ -1164,7 +2198,18 @@
                   "maximum_payout": 2000,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90,
-                  "post_first_payout_mll_floor": 0
+                  "post_first_payout_mll_floor": 0,
+                  "positive_profit_since_prior_payout_required": true
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 1000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
                 }
               }
             },
@@ -1174,7 +2219,19 @@
                 "max_loss": 3000,
                 "drawdown_type": "EOD_TRAILING",
                 "consistency_percent": 50,
-                "max_minis": 10
+                "max_minis": 10,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 2000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
               },
               "sim_funded": {
                 "starting_pnl_balance": 0,
@@ -1188,7 +2245,18 @@
                   "maximum_payout": 3000,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90,
-                  "post_first_payout_mll_floor": 0
+                  "post_first_payout_mll_floor": 0,
+                  "positive_profit_since_prior_payout_required": true
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 2000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
                 }
               }
             },
@@ -1198,7 +2266,19 @@
                 "max_loss": 4500,
                 "drawdown_type": "EOD_TRAILING",
                 "consistency_percent": 50,
-                "max_minis": 15
+                "max_minis": 15,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 3000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
               },
               "sim_funded": {
                 "starting_pnl_balance": 0,
@@ -1212,12 +2292,224 @@
                   "maximum_payout": 5000,
                   "withdrawal_fraction": 0.5,
                   "profit_split_percent": 90,
-                  "post_first_payout_mll_floor": 0
+                  "post_first_payout_mll_floor": 0,
+                  "positive_profit_since_prior_payout_required": true
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 3000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
                 }
               }
             }
           },
-          "notes": "Topstep also offers an XFA Consistency path and optional DLL checkout variants; v3 stores Standard as the executable core and flags the variants for a later rule expansion."
+          "notes": "Topstep also offers an XFA Consistency path and optional DLL checkout variants; v3 stores Standard as the executable core and flags the variants for a later rule expansion.",
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated Topstep Standard $0-balance MLL/scaling/payout handler is not yet implemented."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live call-up and reserve/deposit mechanics are deferred to Steps 28-31."
+              ]
+            }
+          }
+        },
+        {
+          "product_id": "topstep_consistency",
+          "display_name": "Topstep Trading Combine -> XFA Consistency",
+          "status": "ACTIVE",
+          "verification_status": "VERIFIED_CURRENT_2026_08_12",
+          "verified_date": "2026-08-12",
+          "acquisition_model": "SUBSCRIPTION_EVALUATION",
+          "simulation_readiness": "RULES_VERIFIED_ENGINE_PENDING",
+          "sources": [
+            "https://help.topstep.com/en/articles/8284197-trading-combine-parameters",
+            "https://help.topstep.com/en/articles/8284215-express-funded-account-parameters",
+            "https://help.topstep.com/en/articles/8284233-topstep-payout-policy",
+            "https://help.topstep.com/en/articles/10490293-daily-loss-limit-in-the-trading-combine-and-express-funded-account"
+          ],
+          "account_sizes": {
+            "50000": {
+              "evaluation": {
+                "profit_target": 3000,
+                "max_loss": 2000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 50,
+                "max_minis": 5,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 1000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              },
+              "sim_funded": {
+                "starting_pnl_balance": 0,
+                "max_loss": 2000,
+                "drawdown_type": "EOD_TRAILING",
+                "max_minis": 5,
+                "payout": {
+                  "qualifying_days": 3,
+                  "minimum_trades_per_day": 1,
+                  "consistency_percent": 40,
+                  "minimum_payout": 125,
+                  "maximum_payout": 3000,
+                  "withdrawal_fraction": 0.5,
+                  "profit_split_percent": 90,
+                  "post_first_payout_mll_floor": 0
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 1000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              }
+            },
+            "100000": {
+              "evaluation": {
+                "profit_target": 6000,
+                "max_loss": 3000,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 50,
+                "max_minis": 10,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 2000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              },
+              "sim_funded": {
+                "starting_pnl_balance": 0,
+                "max_loss": 3000,
+                "drawdown_type": "EOD_TRAILING",
+                "max_minis": 10,
+                "payout": {
+                  "qualifying_days": 3,
+                  "minimum_trades_per_day": 1,
+                  "consistency_percent": 40,
+                  "minimum_payout": 125,
+                  "maximum_payout": 4000,
+                  "withdrawal_fraction": 0.5,
+                  "profit_split_percent": 90,
+                  "post_first_payout_mll_floor": 0
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 2000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              }
+            },
+            "150000": {
+              "evaluation": {
+                "profit_target": 9000,
+                "max_loss": 4500,
+                "drawdown_type": "EOD_TRAILING",
+                "consistency_percent": 50,
+                "max_minis": 15,
+                "min_days": 2,
+                "consistency_behavior": "50% target; if best day is too large, required profit target increases rather than failing immediately.",
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 3000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              },
+              "sim_funded": {
+                "starting_pnl_balance": 0,
+                "max_loss": 4500,
+                "drawdown_type": "EOD_TRAILING",
+                "max_minis": 15,
+                "payout": {
+                  "qualifying_days": 3,
+                  "minimum_trades_per_day": 1,
+                  "consistency_percent": 40,
+                  "minimum_payout": 125,
+                  "maximum_payout": 6000,
+                  "withdrawal_fraction": 0.5,
+                  "profit_split_percent": 90,
+                  "post_first_payout_mll_floor": 0
+                },
+                "dll_variant": {
+                  "OFF": {
+                    "amount": null,
+                    "action": "NONE"
+                  },
+                  "ON": {
+                    "amount": 3000,
+                    "action": "SOFT_PAUSE_SESSION"
+                  }
+                }
+              }
+            }
+          },
+          "notes": "Topstep also offers an XFA Consistency path and optional DLL checkout variants; v3 stores Standard as the executable core and flags the variants for a later rule expansion.",
+          "rule_truth": {
+            "evaluation": {
+              "grade": "PRODUCTION_READY",
+              "rankable": true,
+              "unmodeled_reasons": []
+            },
+            "sim_funded": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated Topstep Consistency 40% cycle handler is not yet implemented."
+              ]
+            },
+            "live": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Live call-up deferred to Steps 28-31."
+              ]
+            }
+          }
         }
       ]
     },
@@ -1229,13 +2521,14 @@
           "product_id": "tpt_test_pro",
           "display_name": "Take Profit Trader Test -> PRO -> PRO+",
           "status": "ACTIVE",
-          "verification_status": "PARTIAL_NUMERIC",
-          "verified_date": "2026-08-11",
+          "verification_status": "VERIFIED_CURRENT_PARTIAL_AUTOMATION_2026_08_12",
+          "verified_date": "2026-08-12",
           "acquisition_model": "SUBSCRIPTION_EVALUATION",
-          "simulation_readiness": "RULES_PARTIAL_BEFORE_V4",
+          "simulation_readiness": "RESEARCH_ONLY_NOT_RANKABLE",
           "sources": [
-            "https://try.takeprofittrader.com/nf100-1125-TPT-FAQs",
-            "https://takeprofittrader.com/user-info/calendar"
+            "https://try.takeprofittrader.com/TPT-FAQs-nf30r2-0526",
+            "https://takeprofittrader.com/",
+            "https://takeprofittrader.com/blog/test-reset-pricing-update-our-biggest-flash-sale-ever-nofee-50"
           ],
           "account_sizes": {
             "50000": {
@@ -1246,32 +2539,89 @@
                 "consistency_percent": 50,
                 "min_days": 5,
                 "max_minis": 6,
-                "round_trip_commission_nq": 5
+                "round_trip_commission_nq": 5,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "flat_by": "5PM_CT",
+                "news_allowed": true,
+                "reset_price": 99
               },
               "sim_funded": {
                 "drawdown_type": "INTRADAY_TRAILING",
                 "consistency_percent": null,
                 "profit_split_percent": 80,
-                "payout_cadence": "DAILY",
+                "payout_cadence": "DAILY_DAY_ONE",
                 "buffer_required": true,
                 "maximum_payout": null,
-                "max_accounts": 5
+                "max_accounts": 5,
+                "max_loss": 2000,
+                "buffer_amount": 2000,
+                "max_minis": 6,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "news_rule": "Specific major-event news trading prohibited",
+                "flat_by": "5PM_ET",
+                "payout_inside_buffer_closes_account": true,
+                "inside_buffer_profit_split_percent": 50,
+                "pro_resets_max": 3
               },
               "live": {
                 "drawdown_type": "EOD_TRAILING",
                 "consistency_percent": null,
                 "profit_split_percent": 90,
-                "payout_cadence": "DAILY",
+                "payout_cadence": "DAILY_DAY_ONE",
                 "buffer_required": false,
                 "maximum_payout": null,
                 "max_accounts": 5,
-                "inactivity_trade_frequency": "AT_LEAST_WEEKLY"
+                "inactivity_trade_frequency": "AT_LEAST_WEEKLY",
+                "max_accounts_combined_pro_and_proplus": 5,
+                "dll": {
+                  "amount": null,
+                  "action": "NONE"
+                },
+                "flat_by": "5PM_ET",
+                "live_review_eligibility": "At least $10,000 PRO profits or consistent withdrawals over time; invitation discretionary."
               }
             }
           },
-          "notes": "PRO uses intraday drawdown while new PRO+ live accounts use EOD drawdown. v3 intentionally includes it for intraday-funded research instead of excluding it. More numeric PRO drawdown/buffer detail is required before v4 execution."
+          "notes": "PRO uses intraday drawdown while new PRO+ live accounts use EOD drawdown. v3 intentionally includes it for intraday-funded research instead of excluding it. More numeric PRO drawdown/buffer detail is required before v4 execution.",
+          "rule_truth": {
+            "evaluation": {
+              "grade": "RULES_VERIFIED_ENGINE_PENDING",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Dedicated TPT non-failing 50% consistency-target handler is not yet implemented."
+              ]
+            },
+            "sim_funded": {
+              "grade": "RESEARCH_ONLY",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "Major-news calendar and inside-buffer account-closure payout path are not yet automated."
+              ]
+            },
+            "live": {
+              "grade": "RESEARCH_ONLY",
+              "rankable": false,
+              "unmodeled_reasons": [
+                "PRO+ invitation is discretionary; exact live review timing cannot be derived deterministically."
+              ]
+            }
+          }
         }
       ]
     }
-  ]
+  ],
+  "rule_truth_schema_version": "1.0.0",
+  "rule_truth_grades": {
+    "PRODUCTION_READY": "Official rule semantics verified and the requested stage has a trusted StarBase engine handler.",
+    "RULES_VERIFIED_ENGINE_PENDING": "Official rule semantics verified, but the dedicated StarBase state/payout handler is not yet trusted for ranking.",
+    "VARIANT_SELECTION_REQUIRED": "Official rules are verified but a checkout/platform/path variant must be selected before simulation.",
+    "RESEARCH_ONLY": "Useful official semantics are encoded, but at least one load-bearing rule is discretionary, non-automatable, or incomplete.",
+    "NOT_MODELED": "The requested stage is not represented strongly enough for trusted simulation."
+  }
 }

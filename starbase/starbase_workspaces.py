@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 WORKSPACES = [
-    ("Strategy Dataset Library (v5D)", "dataset_library"),
+    ("Strategy Dataset Library (v5E)", "dataset_library"),
     ("TradingView Import + Audit (v2)", "audit"),
-    ("Prop-Firm Rulebook (v3)", "rulebook"),
+    ("Prop-Firm Rule Truth (v5E)", "rulebook"),
     ("Research Integrity + Provenance (v3.5)", "integrity"),
     ("Single-Account State + Ledger (v4A)", "account_state"),
     ("Historical Single-Account Trader (v4B)", "historical_runner"),
     ("Lifecycle + Account Comparison (v4C)", "lifecycle"),
-    ("Josh Fleet Economics + Fees (v5D)", "fleet_economics"),
+    ("Josh Fleet Economics + Fees (v5E)", "fleet_economics"),
     ("Legacy Simulator (reference only)", "legacy"),
 ]
 

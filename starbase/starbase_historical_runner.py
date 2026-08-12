@@ -125,6 +125,14 @@ _EXPLICIT_POLICIES: Dict[Tuple[str, str], Dict[str, Any]] = {
         "confidence": "VERIFIED_PRODUCT",
         "notes": "FundedNext Futures Flex funded EOD MLL locks at starting balance + $100; first reward lock/reset is handled later in v4F.",
     },
+    ("apex_eod", "evaluation"): {
+        "floor_update_basis": "END_OF_SESSION_HIGH_CLOSE",
+        "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
+        "breach_frequency": "TRADE_PATH",
+        "floor_lock_behavior": "NO_LOCK_EVALUATION",
+        "confidence": "VERIFIED_PRODUCT",
+        "notes": "Current Apex EOD Evaluation recalculates the threshold at EOD and enforces it intraday; the evaluation ends when the profit target is reached, so legacy platform-specific trailing-stop rules are not applied to the current EOD product.",
+    },
     ("apex_eod", "sim_funded"): {
         "floor_update_basis": "END_OF_SESSION_HIGH_CLOSE",
         "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
@@ -163,35 +171,6 @@ def resolve_drawdown_policy(rulebook: Dict[str, Any], config: RunnerConfig) -> D
     start = resolve_starting_balance(config.product_id, config.account_size, config.stage, stage_rules, config.starting_balance_override)
 
     explicit = _EXPLICIT_POLICIES.get((config.product_id, config.stage))
-    if config.product_id == "apex_eod" and config.stage == "evaluation":
-        variant = config.platform_variant.upper()
-        if variant in {"RITHMIC", "WEALTHCHARTS"}:
-            explicit = {
-                "floor_update_basis": "END_OF_SESSION_HIGH_CLOSE",
-                "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
-                "breach_frequency": "TRADE_PATH",
-                "floor_lock_behavior": "LOCK_AT_PROFIT_TARGET_BALANCE",
-                "confidence": "VERIFIED_VARIANT",
-                "notes": "Apex EOD evaluation Rithmic/WealthCharts locks the EOD threshold at the profit-target balance.",
-            }
-        elif variant == "TRADOVATE":
-            explicit = {
-                "floor_update_basis": "END_OF_SESSION_HIGH_CLOSE",
-                "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
-                "breach_frequency": "TRADE_PATH",
-                "floor_lock_behavior": "NO_LOCK_EVALUATION",
-                "confidence": "VERIFIED_VARIANT",
-                "notes": "Apex EOD Tradovate evaluation trails indefinitely according to current official documentation.",
-            }
-        else:
-            explicit = {
-                "floor_update_basis": "END_OF_SESSION_HIGH_CLOSE",
-                "breach_test_basis": "INTRADAY_EQUITY_OR_MAE",
-                "breach_frequency": "TRADE_PATH",
-                "floor_lock_behavior": "VARIANT_SELECTION_REQUIRED",
-                "confidence": "PARTIAL_REQUIRES_PLATFORM",
-                "notes": "Apex EOD evaluation lock behavior differs by platform. Select Rithmic/WealthCharts or Tradovate for trusted execution.",
-            }
 
     if explicit is None:
         base = drawdown_semantics(dd_type, stage_rules.get("drawdown_semantics"))

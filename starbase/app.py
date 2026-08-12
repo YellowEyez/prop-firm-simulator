@@ -250,11 +250,11 @@ def main():
             "Choose workspace",
             WORKSPACE_LABELS,
             index=0,
-            help="v5D stores reusable named strategy datasets with explicit futures-instrument identity. v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
+            help="v5E keeps reusable named strategy datasets with explicit futures-instrument identity. v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
         )
         route_key = workspace_key(starbase_mode)
         if route_key == "dataset_library":
-            st.success("v5D dataset library: save named TradingView strategy/profile batches once, add notes/timeframe metadata, reuse them across StarBase, and back them up as one portable Dataset Vault ZIP.")
+            st.success("v5E dataset library: save named TradingView strategy/profile batches once, add notes/timeframe metadata, reuse them across StarBase, and back them up as one portable Dataset Vault ZIP.")
         elif route_key == "audit":
             st.success("v2 audit mode: lifecycle simulation disabled until source integrity passes.")
         elif route_key == "rulebook":
@@ -268,7 +268,7 @@ def main():
         elif route_key == "lifecycle":
             st.success("v4C lifecycle mode: evaluations actually stop at pass/fail/expiry, supported funded products take real rule-based payouts, and the same exact profile can be compared across accounts.")
         elif route_key == "fleet_economics":
-            st.success("v5D fleet economics + fee provenance: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
+            st.success("v5E fleet economics + fee provenance: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 

@@ -57,12 +57,14 @@ def test_tradeify_evaluation_does_not_lock_floor():
     assert pol.lock_floor is None
 
 
-def test_apex_eval_requires_platform_for_production_grade_policy():
+def test_apex_current_eod_eval_is_platform_agnostic_and_ends_at_target():
     rb=load_rulebook()
     p0=resolve_drawdown_policy(rb,RunnerConfig('apex_eod',50000,'evaluation',platform_variant='DEFAULT'))
-    assert p0.confidence=='PARTIAL_REQUIRES_PLATFORM'
     p1=resolve_drawdown_policy(rb,RunnerConfig('apex_eod',50000,'evaluation',platform_variant='RITHMIC'))
-    assert p1.lock_floor==53000
+    assert p0.confidence=='VERIFIED_PRODUCT'
+    assert p0.floor_lock_behavior=='NO_LOCK_EVALUATION'
+    assert p0.lock_floor is None
+    assert p1.floor_lock_behavior=='NO_LOCK_EVALUATION'
 
 
 def test_commission_is_per_contract():

@@ -11,6 +11,8 @@ from pathlib import Path
 from statistics import NormalDist
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
+from starbase_rulebook import rule_truth_for
+
 STARBASE_VERSION = "3.5.0"
 INTEGRITY_SCHEMA_VERSION = "1.0.0"
 GENESIS_HASH = "0" * 64
@@ -176,14 +178,20 @@ def assess_rule_coverage(rulebook: Dict[str, Any], product_id: str, account_size
 
     verification = product.get("verification_status", "UNKNOWN")
     readiness = product.get("simulation_readiness", "UNKNOWN")
+    truth = rule_truth_for(product, stage)
+    truth_grade = truth.get("grade", "NOT_MODELED")
     if missing:
         status = "PARTIAL"
-    elif verification == "VERIFIED_CORE" and readiness == "READY_FOR_V4_CORE":
+    elif truth_grade == "PRODUCTION_READY":
         status = "VERIFIED"
-    elif verification.startswith("VERIFIED") and "RESEARCH" in readiness:
+    elif truth_grade in {"RULES_VERIFIED_ENGINE_PENDING", "VARIANT_SELECTION_REQUIRED", "RESEARCH_ONLY"}:
         status = "PARTIAL"
-    elif verification.startswith("PARTIAL") or "PARTIAL" in readiness or "REQUIRE" in readiness:
-        status = "PARTIAL"
+        warnings.extend(truth.get("unmodeled_reasons") or [])
+    elif truth_grade == "NOT_MODELED":
+        status = "NOT_MODELED"
+        warnings.extend(truth.get("unmodeled_reasons") or [])
+    elif verification.startswith("VERIFIED") and readiness in {"READY_FOR_V4_CORE", "READY_FOR_TRUSTED_CORE"}:
+        status = "VERIFIED"
     else:
         status = "UNVERIFIED"
 
@@ -194,6 +202,9 @@ def assess_rule_coverage(rulebook: Dict[str, Any], product_id: str, account_size
         "warnings": warnings,
         "verification_status": verification,
         "simulation_readiness": readiness,
+        "rule_truth_grade": truth_grade,
+        "rankable": bool(truth.get("rankable")),
+        "unmodeled_reasons": list(truth.get("unmodeled_reasons") or []),
         "product_id": product_id,
         "product": product.get("display_name"),
         "firm": firm.get("display_name"),
