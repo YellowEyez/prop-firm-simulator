@@ -257,3 +257,40 @@ The future account graph should be able to represent:
 - accounts that remain independent even if purchased together.
 
 When a configured combination is impossible or incompatible, StarBase should explain which relationship blocks it instead of silently dropping accounts or forcing them into a generic pool.
+
+
+## 16. Household economics and ending-inventory accounting
+
+Every fleet/lifecycle run must distinguish external household cash from prop-account internal balances.
+
+Required external-cash bridge:
+- payout cash actually received by the household;
+- minus evaluation/direct-funded/reset/activation/subscription/other external acquisition costs;
+- plus explicit refunds/bonuses;
+- equals realized household cash.
+
+Trading commissions must remain visible but must not be double-counted as a second external-cash expense when they are already embedded in the prop-account trade result.
+
+At end of data, active inventory must not disappear. Report separately:
+- active-account count and known acquisition-cost basis;
+- claimable-now payout value;
+- accrued-but-not-yet-claimable payout capacity and exact blockers;
+- active simulated profit inventory;
+- confirmed forfeited residual value;
+- unresolved value at live-transition or other not-yet-modeled boundaries.
+
+A later survival/live model may estimate realistically recoverable future payout value, but that estimate must never be mixed with deterministic claimable-now cash.
+
+## 17. Replacement continuity research vs legal provisioning
+
+Fleet replacement policy must be explicit:
+- FIXED_FLEET_NO_REPLACEMENT: fleet shrinks as accounts close;
+- MAINTAIN_N_ACTIVE_RESEARCH: instantly replenish to a target active funded count for continuity research and charge each provisioned account's configured cost;
+- FORCE_100_PERCENT_CAPTURE_RESEARCH: provision enough account-session slots to route every eligible signal;
+- later AUTO_PROVISION_WITHIN_RULES: model actual evaluation/direct-funded acquisition path, timing, household caps and legal limits.
+
+Maintain-N and Force-100 modes must be labeled research assumptions until real provisioning timing and limits are implemented.
+
+## 18. Certification dataset mode
+
+Certification defaults to STRICT audit rows only. REVIEW rows are optional research inputs and must create a conspicuous warning/badge with the number of quarantined trades added. Strict regression results and review-inclusive research results must never be compared without showing the data-mode difference.

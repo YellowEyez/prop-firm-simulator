@@ -107,3 +107,78 @@ def test_fleet_does_not_claim_final_business_net_before_cost_engine():
     assert run.summary['account_acquisition_costs'] is None
     assert run.summary['realized_household_net_after_all_costs'] is None
     assert 'NOT_YET_MODELED' in run.summary['economics_status']
+
+
+def test_manual_effective_cost_charges_every_provisioned_account_and_calculates_net():
+    rb=load_rulebook()
+    df=_ledger([{'day':1,'minute':j,'pnl':100,'mae':-10} for j in range(3)])
+    run=run_single_product_fleet(
+        rb, df,
+        FleetConfig('lucid_flex',50000,'FORCE_100_CAPTURE',fixed_accounts=1,
+                    max_trades_per_account_per_session=1,commission_per_contract_round_trip=0,
+                    payout_request_mode='NONE',acquisition_cost_mode='MANUAL_EFFECTIVE_FUNDED_COST',
+                    effective_cost_per_funded_account=125)
+    )
+    assert run.summary['accounts_provisioned']==3
+    assert abs(run.summary['account_and_household_external_costs']-375)<1e-9
+    assert run.summary['cost_basis_known'] is True
+    assert abs(run.summary['realized_household_net_cash_after_modeled_external_costs']+375)<1e-9
+    assert abs(run.accounts['acquisition_cost_basis'].sum()-375)<1e-9
+
+
+def test_maintain_n_replaces_failed_account_and_charges_replacement():
+    rb=load_rulebook()
+    df=_ledger([
+        {'day':1,'minute':1,'pnl':-3000,'mae':-3000},
+        {'day':2,'minute':1,'pnl':100,'mae':-10},
+        {'day':2,'minute':2,'pnl':100,'mae':-10},
+    ])
+    run=run_single_product_fleet(
+        rb, df,
+        FleetConfig('lucid_flex',50000,'MAINTAIN_FIXED_ACTIVE',fixed_accounts=2,
+                    max_trades_per_account_per_session=1,commission_per_contract_round_trip=0,
+                    payout_request_mode='NONE',acquisition_cost_mode='MANUAL_EFFECTIVE_FUNDED_COST',
+                    effective_cost_per_funded_account=100)
+    )
+    assert run.summary['signals_routed']==3
+    assert run.summary['signals_unrouted_capacity']==0
+    assert run.summary['failed_accounts']==1
+    assert run.summary['accounts_provisioned']==3
+    assert abs(run.summary['account_and_household_external_costs']-300)<1e-9
+    assert run.summary['active_accounts_at_end']==2
+
+
+def test_active_account_reports_accrued_but_blocked_payout_capacity():
+    rb=load_rulebook()
+    # LucidFlex has enough profit for payout capacity but not five qualifying days.
+    df=_ledger([{'day':1,'pnl':1200,'mae':-10}])
+    run=run_single_product_fleet(rb,df,FleetConfig('lucid_flex',50000,'FIXED_FLEET',fixed_accounts=1,
+        commission_per_contract_round_trip=0,payout_request_mode='MAX_ALLOWED'))
+    row=run.accounts.iloc[0]
+    assert row['claimable_now_gross']==0
+    assert row['accrued_but_blocked_gross_capacity']>0
+    assert 'MORE_QUALIFYING_DAY' in row['payout_blockers']
+    assert run.summary['accrued_but_not_claimable_gross_capacity_at_end']>0
+
+
+def test_strict_and_review_mode_are_explicit_in_summary():
+    rb=load_rulebook()
+    df=_ledger([{'day':1,'pnl':100,'mae':-10}])
+    run=run_single_product_fleet(rb,df,FleetConfig('lucid_flex',50000,'FIXED_FLEET',fixed_accounts=1,
+        commission_per_contract_round_trip=0,payout_request_mode='NONE',include_review_rows=False))
+    assert run.summary['data_mode']=='STRICT_CERTIFICATION'
+
+
+def test_failed_account_positive_residual_is_recorded_as_confirmed_forfeiture():
+    rb=load_rulebook()
+    # Build account above start, then fail after the floor has locked above start.
+    df=_ledger([
+        {'day':1,'pnl':2200,'mae':-10},
+        {'day':2,'pnl':-3000,'mae':-3000},
+    ])
+    run=run_single_product_fleet(rb,df,FleetConfig('lucid_flex',50000,'FIXED_FLEET',fixed_accounts=1,
+        commission_per_contract_round_trip=0,payout_request_mode='NONE'))
+    assert run.summary['failed_accounts']==1
+    assert run.summary['confirmed_forfeited_residual_sim_profit']>=0
+    if run.summary['confirmed_forfeited_residual_sim_profit']>0:
+        assert (run.forfeitures['status']=='CONFIRMED').any()

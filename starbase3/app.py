@@ -246,7 +246,7 @@ def main():
         st.header("🚀 StarBase Mode")
         starbase_mode = st.radio(
             "Choose workspace",
-            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Single-Account State + Ledger (v4A)", "Historical Single-Account Trader (v4B)", "Lifecycle + Account Comparison (v4C)", "Josh Single-Product Funded Fleet (v5A)", "Legacy Simulator (reference only)"],
+            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Single-Account State + Ledger (v4A)", "Historical Single-Account Trader (v4B)", "Lifecycle + Account Comparison (v4C)", "Josh Fleet Economics + Inventory (v5B)", "Legacy Simulator (reference only)"],
             index=0,
             help="v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
         )
@@ -263,7 +263,7 @@ def main():
         elif starbase_mode.startswith("Lifecycle +"):
             st.success("v4C lifecycle mode: evaluations actually stop at pass/fail/expiry, supported funded products take real rule-based payouts, and the same exact profile can be compared across accounts.")
         elif starbase_mode.startswith("Josh Single-Product"):
-            st.success("v5A fleet mode: the Josh household routes one strategy across many independently stateful funded accounts. Fixed-fleet and force-100%-capture research are available.")
+            st.success("v5B fleet economics: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 

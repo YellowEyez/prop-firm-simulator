@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0.0",
+  "verified_as_of": "2026-08-12",
+  "purpose": "Pricing provenance/reference only. Funded-only fleet runs use an explicit effective-funded-cost assumption unless an exact direct-purchase cost is modeled. Promotions may change and must never be silently extrapolated.",
+  "products": {
+    "tradeify_select_flex": {
+      "acquisition_model": "EVALUATION",
+      "pricing_status": "VERIFIED_CURRENT_LIST_PRICE",
+      "notes": "Select is a one-time evaluation purchase, no activation fee. Exact funded acquisition cost still depends on evaluation pass/reset history.",
+      "sources": [
+        "https://help.tradeify.co/en/articles/14369021-tradeify-pricing-reference"
+      ],
+      "account_sizes": {
+        "25000": {
+          "evaluation_purchase_price": 109.0,
+          "evaluation_reset_fee": 60.0,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        },
+        "50000": {
+          "evaluation_purchase_price": 165.0,
+          "evaluation_reset_fee": 95.0,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        },
+        "100000": {
+          "evaluation_purchase_price": 265.0,
+          "evaluation_reset_fee": 169.0,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        },
+        "150000": {
+          "evaluation_purchase_price": 369.0,
+          "evaluation_reset_fee": 239.0,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        }
+      }
+    },
+    "fundednext_flex": {
+      "acquisition_model": "EVALUATION",
+      "pricing_status": "VERIFIED_CURRENT_TIERED_OFFER",
+      "notes": "No monthly or activation fee. Current Flex pricing is tiered by purchase count; funded acquisition cost depends on actual challenge attempts/resets and purchase tier.",
+      "sources": [
+        "https://helpfutures.fundednext.com/en/articles/15053874-what-are-the-available-account-sizes-and-their-prices-in-fundednext-futures",
+        "https://helpfutures.fundednext.com/en/articles/14260538-what-are-the-reset-conditions-and-fees-at-fundednext-futures",
+        "https://helpfutures.fundednext.com/en/articles/14256665-do-i-have-to-pay-a-monthly-subscription-fee-or-activation-fee-at-fundednext-futures"
+      ],
+      "account_sizes": {
+        "50000": {
+          "evaluation_base_price": 133.99,
+          "first_5_purchase_offer": 69.99,
+          "purchase_6_plus_offer": 79.99,
+          "evaluation_reset_fee": 77.99,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        },
+        "100000": {
+          "evaluation_base_price": 249.99,
+          "first_5_purchase_offer": 129.99,
+          "purchase_6_plus_offer": 149.99,
+          "evaluation_reset_fee": 144.99,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        },
+        "150000": {
+          "evaluation_base_price": 483.99,
+          "first_5_purchase_offer": 249.99,
+          "purchase_6_plus_offer": 289.99,
+          "evaluation_reset_fee": 278.99,
+          "activation_fee": 0.0,
+          "monthly_subscription": 0.0
+        }
+      }
+    },
+    "mffu_flex_50k": {
+      "acquisition_model": "EVALUATION",
+      "pricing_status": "VERIFIED_CURRENT_LIST_PRICE",
+      "notes": "MFFU currently states no activation fee. Promotions can alter checkout cost; funded acquisition cost depends on evaluation attempts/resets.",
+      "sources": [
+        "https://help.myfundedfutures.com/en/articles/11802636-traders-evaluation-simplified",
+        "https://help.myfundedfutures.com/en/articles/8276273-prop-firm-account-resets-fast-and-cost-effective-solutions"
+      ],
+      "account_sizes": {
+        "50000": {
+          "evaluation_purchase_price": 153.0,
+          "evaluation_reset_fee": 153.0,
+          "activation_fee": 0.0
+        }
+      }
+    },
+    "lucid_flex": {
+      "acquisition_model": "EVALUATION",
+      "pricing_status": "CHECKOUT_PRICE_USER_CONFIRMATION_REQUIRED",
+      "notes": "Official Lucid sources confirm one-time billing and no activation fee, but storefront pricing/promotions are dynamic. StarBase will not guess the current effective funded acquisition cost.",
+      "sources": [
+        "https://support.lucidtrading.com/en/articles/12945790-lucidflex-evaluation-account",
+        "https://www.lucidtrading.com/"
+      ],
+      "account_sizes": {
+        "25000": {
+          "activation_fee": 0.0
+        },
+        "50000": {
+          "activation_fee": 0.0
+        },
+        "100000": {
+          "activation_fee": 0.0
+        },
+        "150000": {
+          "activation_fee": 0.0
+        }
+      }
+    },
+    "lucid_direct": {
+      "acquisition_model": "DIRECT_FUNDED",
+      "pricing_status": "CHECKOUT_PRICE_USER_CONFIRMATION_REQUIRED",
+      "notes": "LucidDirect is a one-time direct-to-funded purchase, but live storefront price/promotions are dynamic. Enter the actual checkout cost for an exact run.",
+      "sources": [
+        "https://support.lucidtrading.com/en/articles/12890148-luciddirect-funded-account",
+        "https://www.lucidtrading.com/"
+      ],
+      "account_sizes": {
+        "25000": {},
+        "50000": {},
+        "100000": {},
+        "150000": {}
+      }
+    },
+    "apex_eod": {
+      "acquisition_model": "EVALUATION",
+      "pricing_status": "CHECKOUT_VARIANT_USER_CONFIRMATION_REQUIRED",
+      "notes": "Apex pricing varies by EOD vs Intraday, Standard vs No Activation Fee, account size, vendor and coupon state. Enter the actual effective funded acquisition cost for funded-only fleet economics.",
+      "sources": [
+        "https://apextraderfunding.com/",
+        "https://apextraderfunding.com/help-center/uncategorized/no-activation-fee-evaluations/",
+        "https://apextraderfunding.com/help-center/billing/pa-activation-process-deadline-explained/"
+      ],
+      "account_sizes": {
+        "25000": {},
+        "50000": {},
+        "100000": {},
+        "150000": {}
+      }
+    }
+  }
+}

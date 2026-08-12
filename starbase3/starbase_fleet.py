@@ -1,4 +1,4 @@
-"""Project StarBase v5A single-product funded fleet engine.
+"""Project StarBase v5B single-product funded fleet economics engine.
 
 Purpose
 -------
@@ -6,15 +6,13 @@ Turn an audited TradingView strategy/profile into a persistent fleet of independ
 stateful simulated-funded prop accounts while preserving StarBase's 6 PM ET futures
 sessions and one-trade-per-account/session routing semantics.
 
-v5A deliberately limits itself to ONE product/account-size and FUNDED-ONLY research.
+v5B deliberately limits itself to ONE product/account-size and FUNDED-ONLY research.
 It adds two fleet modes:
   * FIXED_FLEET: use exactly N persistent funded accounts, no automatic replacements.
   * FORCE_100_CAPTURE: provision fresh funded accounts on demand so every eligible
     strategy signal receives an account slot (account-count rules intentionally ignored).
 
-Acquisition costs are NOT yet included. That is Step 24/25 work. Therefore the fleet
-reports payout cash and account inventory separately and never calls payout cash minus
-zero acquisition costs a final business profit.
+v5B adds an explicit acquisition-cost basis, ending payout-inventory valuation, Maintain-N replacement research, and bottleneck/forfeiture ledgers. Exact evaluation-to-funded manufacturing economics remain a later lifecycle step, so evaluation-based funded-only runs must use a clearly labeled effective-cost assumption or remain unknown-cost inventory research.
 """
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ from dataclasses import dataclass, asdict
 from io import BytesIO
 import json
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import zipfile
 
 import pandas as pd
@@ -40,6 +38,7 @@ from starbase_historical_runner import (
     _trade_peak,
 )
 from starbase_integrity import assess_rule_coverage, sha256_text, stable_json
+from starbase_economics import AcquisitionCostPolicy
 from starbase_lifecycle import (
     LifecycleConfig,
     _eligible_work,
@@ -50,15 +49,15 @@ from starbase_lifecycle import (
     _PAYOUT_ENGINE_SUPPORT,
 )
 
-FLEET_ENGINE_VERSION = "5.0A"
-FLEET_SCHEMA_VERSION = "5A.0.0"
+FLEET_ENGINE_VERSION = "5.0B"
+FLEET_SCHEMA_VERSION = "5B.0.0"
 
 
 @dataclass(frozen=True)
 class FleetConfig:
     product_id: str
     account_size: int
-    capacity_mode: str = "FIXED_FLEET"  # FIXED_FLEET | FORCE_100_CAPTURE
+    capacity_mode: str = "FIXED_FLEET"  # FIXED_FLEET | MAINTAIN_FIXED_ACTIVE | FORCE_100_CAPTURE
     fixed_accounts: int = 10
     max_trades_per_account_per_session: int = 1
     commission_per_contract_round_trip: float = 0.0
@@ -67,6 +66,10 @@ class FleetConfig:
     payout_request_mode: str = "MAX_ALLOWED"
     reward_share_override_percent: Optional[float] = None
     household_name: str = "Josh"
+    acquisition_cost_mode: str = "EXISTING_INVENTORY_UNKNOWN_COST"
+    effective_cost_per_funded_account: float = 0.0
+    refund_or_bonus_per_account: float = 0.0
+    one_time_household_external_cost: float = 0.0
 
 
 @dataclass
@@ -76,6 +79,9 @@ class FleetRun:
     accounts: pd.DataFrame
     trades: pd.DataFrame
     payouts: pd.DataFrame
+    costs: pd.DataFrame
+    bottlenecks: pd.DataFrame
+    forfeitures: pd.DataFrame
     config: Dict[str, Any]
     rule_snapshot: Dict[str, Any]
 
@@ -107,6 +113,8 @@ class _AccountState:
     flat_trades: int = 0
     sessions_traded: int = 0
     provision_session: Optional[str] = None
+    acquisition_cost: float = 0.0
+    refund_or_bonus: float = 0.0
 
     def __post_init__(self):
         if self.cycle_session_pnls is None:
@@ -146,7 +154,13 @@ def raw_strategy_baseline(ledger: pd.DataFrame, *, include_review_rows: bool, co
     }
 
 
-def _new_account(rulebook: Dict[str, Any], cfg: FleetConfig, ordinal: int, provision_session: Optional[str]) -> _AccountState:
+def _new_account(
+    rulebook: Dict[str, Any],
+    cfg: FleetConfig,
+    ordinal: int,
+    provision_session: Optional[str],
+    cost_policy: Optional[AcquisitionCostPolicy] = None,
+) -> _AccountState:
     firm, product, stage_rules = _find_stage(rulebook, cfg.product_id, cfg.account_size, "sim_funded")
     if not _PAYOUT_ENGINE_SUPPORT.get(cfg.product_id):
         raise HistoricalRunnerError(f"{cfg.product_id} funded payout engine is not modeled; v5A will not fleet-rank an incomplete product")
@@ -172,7 +186,126 @@ def _new_account(rulebook: Dict[str, Any], cfg: FleetConfig, ordinal: int, provi
         payout_rules=stage_rules.get("payout") or {},
         cycle_start_balance=start,
         provision_session=provision_session,
+        acquisition_cost=cost_policy.provision_external_cost() if cost_policy else 0.0,
+        refund_or_bonus=cost_policy.provision_refund_or_bonus() if cost_policy else 0.0,
     )
+
+
+def _provision_cost_event(account: _AccountState, session_id: Optional[str], cost_policy: AcquisitionCostPolicy, *, note: str) -> Dict[str, Any]:
+    return {
+        "futures_session_id": session_id or "PRE_SIMULATION",
+        "account_id": account.account_id,
+        "event_type": "FUNDED_ACCOUNT_PROVISION",
+        "external_cash_cost": float(account.acquisition_cost),
+        "refund_or_bonus_cash": float(account.refund_or_bonus),
+        "net_external_cash_change": -float(account.acquisition_cost) + float(account.refund_or_bonus),
+        "cost_basis_mode": cost_policy.mode,
+        "cost_basis_known": cost_policy.cost_basis_known,
+        "note": note,
+    }
+
+
+def _payout_blockers(
+    product_id: str,
+    account_size: int,
+    payout_rules: Dict[str, Any],
+    *,
+    start_balance: float,
+    balance: float,
+    cycle_start_balance: float,
+    cycle_session_pnls: List[float],
+    qualifying_days: int,
+    payout_count: int,
+) -> Tuple[List[str], float, Dict[str, Any]]:
+    """Return explicit blocker codes plus gross payout capacity before unmet gates.
+
+    `_payout_quote(..., MAX_ALLOWED)` already computes the legal gross request capacity
+    implied by current account profit, caps and safety nets. When the quote is ineligible,
+    that amount is *accrued capacity*, not cash that can be requested now.
+    """
+    quote = _payout_quote(
+        product_id,
+        account_size,
+        payout_rules,
+        start_balance=start_balance,
+        balance=balance,
+        cycle_start_balance=cycle_start_balance,
+        cycle_session_pnls=cycle_session_pnls,
+        qualifying_days=qualifying_days,
+        payout_count=payout_count,
+        request_mode="MAX_ALLOWED",
+    )
+    if not quote.get("supported"):
+        return ["PAYOUT_ENGINE_NOT_MODELED"], 0.0, quote
+    if quote.get("eligible"):
+        return [], float(quote.get("available_now") or 0.0), quote
+
+    blockers: List[str] = []
+    q_required = int(payout_rules.get("qualifying_days") or 0)
+    if qualifying_days < q_required:
+        blockers.append(f"NEEDS_{q_required-qualifying_days}_MORE_QUALIFYING_DAY(S)")
+
+    cycle_profit = float(quote.get("cycle_profit") or (balance - cycle_start_balance))
+    total_profit = float(quote.get("total_profit") or (balance - start_balance))
+    min_payout = float(payout_rules.get("minimum_payout") or 0.0)
+    capacity = float(quote.get("available_now") or 0.0)
+
+    if product_id == "lucid_flex":
+        if cycle_profit <= 0:
+            blockers.append("NEEDS_POSITIVE_CYCLE_PROFIT")
+        if capacity < min_payout - 1e-9:
+            blockers.append(f"PAYOUT_CAPACITY_BELOW_MINIMUM_{min_payout:g}")
+    elif product_id == "tradeify_select_flex":
+        if payout_count > 0 and cycle_profit <= 0:
+            blockers.append("NEEDS_POSITIVE_POST_PAYOUT_CYCLE")
+        if capacity <= 0:
+            blockers.append("NO_WITHDRAWABLE_PROFIT")
+    elif product_id == "fundednext_flex":
+        min_cycle = float(payout_rules.get("cycle_min_profit") or 0.0)
+        if cycle_profit < min_cycle - 1e-9:
+            blockers.append(f"CYCLE_PROFIT_BELOW_{min_cycle:g}")
+        if capacity < min_payout - 1e-9:
+            blockers.append(f"PAYOUT_CAPACITY_BELOW_MINIMUM_{min_payout:g}")
+    elif product_id == "mffu_flex_50k":
+        min_cycle = float(payout_rules.get("cycle_min_profit") or 0.0)
+        if cycle_profit < min_cycle - 1e-9:
+            blockers.append(f"CYCLE_PROFIT_BELOW_{min_cycle:g}")
+        if capacity < min_payout - 1e-9:
+            blockers.append(f"PAYOUT_CAPACITY_BELOW_MINIMUM_{min_payout:g}")
+    elif product_id == "apex_eod":
+        safety = float(payout_rules.get("safety_net") or 0.0)
+        if balance <= safety + min_payout - 1e-9:
+            blockers.append("SAFETY_NET_PLUS_MINIMUM_PAYOUT_NOT_CLEARED")
+        cons_pct = payout_rules.get("consistency_percent")
+        ratio = quote.get("consistency_ratio")
+        if cons_pct is not None and ratio is not None and float(ratio) >= float(cons_pct) - 1e-12:
+            blockers.append(f"PAYOUT_CONSISTENCY_AT_OR_ABOVE_{float(cons_pct):g}_PERCENT")
+    elif product_id == "lucid_direct":
+        goal = float(payout_rules.get("profit_goal_first") if payout_count == 0 else payout_rules.get("profit_goal_later") or 0.0)
+        if cycle_profit < goal - 1e-9:
+            blockers.append(f"CYCLE_PROFIT_BELOW_GOAL_{goal:g}")
+        cons_pct = payout_rules.get("consistency_percent")
+        ratio = quote.get("consistency_ratio")
+        if cons_pct is not None and ratio is not None and float(ratio) > float(cons_pct) + 1e-12:
+            blockers.append(f"PAYOUT_CONSISTENCY_ABOVE_{float(cons_pct):g}_PERCENT")
+        if capacity < min_payout - 1e-9:
+            blockers.append(f"PAYOUT_CAPACITY_BELOW_MINIMUM_{min_payout:g}")
+
+    if not blockers:
+        blockers.append(str(quote.get("reason") or "OTHER_PAYOUT_GATE"))
+    return blockers, max(0.0, capacity), quote
+
+
+def _trader_share_for_account(cfg: FleetConfig, account: _AccountState) -> float:
+    lcfg = LifecycleConfig(
+        product_id=cfg.product_id,
+        account_size=cfg.account_size,
+        mode="FUNDED_ONLY",
+        commission_per_contract_round_trip=cfg.commission_per_contract_round_trip,
+        payout_request_mode=cfg.payout_request_mode,
+        reward_share_override_percent=cfg.reward_share_override_percent,
+    )
+    return _payout_share(account.payout_rules, lcfg)
 
 
 def _trade_account(account: _AccountState, row: pd.Series, cfg: FleetConfig, stage_rules: Dict[str, Any], sid: str) -> Dict[str, Any]:
@@ -343,16 +476,27 @@ def _finalize_account_session(account: _AccountState, cfg: FleetConfig, sid: str
 
 
 def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg: FleetConfig) -> FleetRun:
-    if cfg.capacity_mode not in {"FIXED_FLEET", "FORCE_100_CAPTURE"}:
-        raise HistoricalRunnerError("v5A supports FIXED_FLEET or FORCE_100_CAPTURE")
+    if cfg.capacity_mode not in {"FIXED_FLEET", "MAINTAIN_FIXED_ACTIVE", "FORCE_100_CAPTURE"}:
+        raise HistoricalRunnerError("v5B supports FIXED_FLEET, MAINTAIN_FIXED_ACTIVE, or FORCE_100_CAPTURE")
     if cfg.fixed_accounts < 1:
         raise HistoricalRunnerError("fixed_accounts must be >= 1")
     if cfg.max_trades_per_account_per_session < 1:
         raise HistoricalRunnerError("max trades/account/session must be >= 1")
 
+    cost_policy = AcquisitionCostPolicy(
+        mode=cfg.acquisition_cost_mode,
+        effective_cost_per_funded_account=float(cfg.effective_cost_per_funded_account),
+        refund_or_bonus_per_account=float(cfg.refund_or_bonus_per_account),
+        one_time_household_external_cost=float(cfg.one_time_household_external_cost),
+    )
+    try:
+        cost_policy.validate()
+    except ValueError as exc:
+        raise HistoricalRunnerError(str(exc)) from exc
+
     firm, product, stage_rules = _find_stage(rulebook, cfg.product_id, cfg.account_size, "sim_funded")
     if not _PAYOUT_ENGINE_SUPPORT.get(cfg.product_id):
-        raise HistoricalRunnerError("v5A fleet mode requires a modeled funded payout engine")
+        raise HistoricalRunnerError("v5B fleet mode requires a modeled funded payout engine")
 
     work = _eligible_work(ledger, cfg.include_review_rows)
     baseline = raw_strategy_baseline(
@@ -362,11 +506,34 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
     )
 
     accounts: List[_AccountState] = []
+    cost_rows: List[Dict[str, Any]] = []
+    forfeiture_rows: List[Dict[str, Any]] = []
     next_account = 1
-    if cfg.capacity_mode == "FIXED_FLEET":
+
+    if cost_policy.one_time_household_external_cost > 0:
+        cost_rows.append({
+            "futures_session_id": "PRE_SIMULATION",
+            "account_id": "HOUSEHOLD",
+            "event_type": "ONE_TIME_HOUSEHOLD_EXTERNAL_COST",
+            "external_cash_cost": float(cost_policy.one_time_household_external_cost),
+            "refund_or_bonus_cash": 0.0,
+            "net_external_cash_change": -float(cost_policy.one_time_household_external_cost),
+            "cost_basis_mode": cost_policy.mode,
+            "cost_basis_known": True,
+            "note": "User-entered household-level external cost.",
+        })
+
+    def provision(session_id: Optional[str], note: str) -> _AccountState:
+        nonlocal next_account
+        a = _new_account(rulebook, cfg, next_account, session_id, cost_policy)
+        next_account += 1
+        accounts.append(a)
+        cost_rows.append(_provision_cost_event(a, session_id, cost_policy, note=note))
+        return a
+
+    if cfg.capacity_mode in {"FIXED_FLEET", "MAINTAIN_FIXED_ACTIVE"}:
         for _ in range(cfg.fixed_accounts):
-            accounts.append(_new_account(rulebook, cfg, next_account, None))
-            next_account += 1
+            provision(None, "Initial funded inventory for fleet research.")
 
     trade_rows: List[Dict[str, Any]] = []
     payout_rows: List[Dict[str, Any]] = []
@@ -374,6 +541,9 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
     total_shortfall = 0
     total_routed = 0
     total_provisioned = len(accounts)
+    pre_sim_cost_pending = sum(float(r.get("external_cash_cost") or 0.0) for r in cost_rows if r.get("futures_session_id") == "PRE_SIMULATION")
+    pre_sim_refund_pending = sum(float(r.get("refund_or_bonus_cash") or 0.0) for r in cost_rows if r.get("futures_session_id") == "PRE_SIMULATION")
+    first_session = True
 
     for sid_raw, group in work.groupby("futures_session_id", sort=False, dropna=False):
         sid = str(sid_raw)
@@ -383,7 +553,6 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
 
         session_trade_count: Dict[str, int] = {}
         session_account_net: Dict[str, float] = {}
-        session_account_source_net: Dict[str, float] = {}
         session_accounts_traded: List[str] = []
         session_payout_cash = 0.0
         session_payout_gross = 0.0
@@ -397,18 +566,46 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
         winners = losers = flats = 0
         routed = shortfall = 0
 
+        session_external_cost = pre_sim_cost_pending if first_session else 0.0
+        session_refunds = pre_sim_refund_pending if first_session else 0.0
+        first_session = False
+
+        # Maintain-N research replaces closed accounts before the session begins.
+        if cfg.capacity_mode == "MAINTAIN_FIXED_ACTIVE":
+            active_count = sum(1 for a in accounts if a.status == "ACTIVE")
+            while active_count < cfg.fixed_accounts:
+                a = provision(sid, "Maintain-N replacement funded account (instant funded-inventory research assumption).")
+                total_provisioned += 1
+                session_new_accounts += 1
+                session_external_cost += a.acquisition_cost
+                session_refunds += a.refund_or_bonus
+                active_count += 1
+
         for signal_ordinal, (_, row) in enumerate(group.iterrows(), start=1):
             active_with_slot = [
                 a for a in accounts
                 if a.status == "ACTIVE" and session_trade_count.get(a.account_id, 0) < cfg.max_trades_per_account_per_session
             ]
+
             if not active_with_slot and cfg.capacity_mode == "FORCE_100_CAPTURE":
-                a = _new_account(rulebook, cfg, next_account, sid)
-                next_account += 1
-                accounts.append(a)
+                a = provision(sid, "Force-100%-capture funded account provision.")
                 total_provisioned += 1
                 session_new_accounts += 1
+                session_external_cost += a.acquisition_cost
+                session_refunds += a.refund_or_bonus
                 active_with_slot = [a]
+            elif not active_with_slot and cfg.capacity_mode == "MAINTAIN_FIXED_ACTIVE":
+                # If an account failed earlier in this same session, restore the configured
+                # active fleet size on demand. This is intentionally an instant-inventory
+                # research assumption, not yet the real evaluation-to-funded replacement queue.
+                active_count = sum(1 for a in accounts if a.status == "ACTIVE")
+                if active_count < cfg.fixed_accounts:
+                    a = provision(sid, "Intraday Maintain-N replacement after account closure (research assumption).")
+                    total_provisioned += 1
+                    session_new_accounts += 1
+                    session_external_cost += a.acquisition_cost
+                    session_refunds += a.refund_or_bonus
+                    active_with_slot = [a]
 
             if not active_with_slot:
                 shortfall += 1
@@ -435,7 +632,6 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
 
             session_trade_count[account.account_id] = session_trade_count.get(account.account_id, 0) + 1
             session_account_net[account.account_id] = session_account_net.get(account.account_id, 0.0) + float(tr["account_realized_pnl_until_exit_or_breach"])
-            session_account_source_net[account.account_id] = session_account_source_net.get(account.account_id, 0.0) + float(tr["source_trade_net_pnl"])
             if account.account_id not in session_accounts_traded:
                 session_accounts_traded.append(account.account_id)
 
@@ -466,17 +662,33 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
             if before_payouts != account.payout_count and account.status == "PAYOUT_CYCLE_COMPLETE":
                 session_cycle_completes.append(account.account_id)
 
+        # Maintain-N means the target active inventory is restored after end-of-session
+        # closures too, so the end-of-data balance sheet shows the inventory Josh would
+        # actually be carrying into the next futures session under this research policy.
+        if cfg.capacity_mode == "MAINTAIN_FIXED_ACTIVE":
+            active_count = sum(1 for a in accounts if a.status == "ACTIVE")
+            while active_count < cfg.fixed_accounts:
+                a = provision(sid, "End-of-session Maintain-N replacement after failure/payout-cycle closure (research assumption).")
+                total_provisioned += 1
+                session_new_accounts += 1
+                session_external_cost += a.acquisition_cost
+                session_refunds += a.refund_or_bonus
+                active_count += 1
+
         active_end = sum(1 for a in accounts if a.status == "ACTIVE")
         failed_cum = sum(1 for a in accounts if a.status == "FAILED")
         completed_cum = sum(1 for a in accounts if a.status == "PAYOUT_CYCLE_COMPLETE")
         wallet_cum = sum(a.wallet_cash for a in accounts)
         account_profit_inventory = sum(a.balance - a.start_balance for a in accounts if a.status == "ACTIVE")
-        # Aggregate displayed prop balances are NOT household cash. They are shown only as inventory diagnostics.
         aggregate_prop_balance = sum(a.balance for a in accounts if a.status == "ACTIVE")
+        total_external_cost_cum = sum(float(r.get("external_cash_cost") or 0.0) for r in cost_rows)
+        total_refund_cum = sum(float(r.get("refund_or_bonus_cash") or 0.0) for r in cost_rows)
+        cash_flow_cum = wallet_cum - total_external_cost_cum + total_refund_cum
 
         household_rows.append({
             "household": cfg.household_name,
             "futures_session_id": sid,
+            "data_mode": "REVIEW_INCLUDED_RESEARCH" if cfg.include_review_rows else "STRICT_CERTIFICATION",
             "source_signals": int(len(group)),
             "signals_routed": routed,
             "signals_unrouted_capacity": shortfall,
@@ -486,13 +698,14 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
             "losing_trades": losers,
             "flat_trades": flats,
             "source_strategy_gross_pnl": source_gross,
-            "firm_commissions": source_commission,
+            "firm_commissions_embedded_in_prop_pnl": source_commission,
             "source_strategy_net_after_commission": source_net,
             "account_realized_trading_pnl_until_breach": account_realized,
             "payout_deductions_from_prop_accounts": session_payout_gross,
             "payout_cash_to_household": session_payout_cash,
-            "account_acquisition_costs": 0.0,
-            "household_realized_cash_change_before_account_costs": session_payout_cash,
+            "external_account_and_household_costs": session_external_cost,
+            "refunds_or_bonuses": session_refunds,
+            "household_realized_external_cash_change": session_payout_cash - session_external_cost + session_refunds,
             "new_accounts_provisioned": session_new_accounts,
             "accounts_failed": len(session_failures),
             "accounts_completed_payout_cycle": len(session_cycle_completes),
@@ -500,18 +713,21 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
             "failed_accounts_cumulative": failed_cum,
             "completed_accounts_cumulative": completed_cum,
             "household_wallet_cash_cumulative": wallet_cum,
+            "external_costs_cumulative": total_external_cost_cum,
+            "refunds_or_bonuses_cumulative": total_refund_cum,
+            "household_cash_flow_cumulative_after_modeled_external_costs": cash_flow_cum,
             "active_account_profit_inventory_not_cash": account_profit_inventory,
             "aggregate_active_prop_balances_not_cash": aggregate_prop_balance,
         })
 
     account_rows = []
     for a in accounts:
-        # End-of-data payout availability if the account is still active.
-        payout_available = 0.0
-        payout_eligible = False
-        payout_reason = "INACTIVE"
+        blockers: List[str] = []
+        claimable_gross = 0.0
+        accrued_blocked_gross = 0.0
+        quote = {"reason": "INACTIVE", "available_now": 0.0, "eligible": False}
         if a.status == "ACTIVE" and a.payout_rules:
-            q = _payout_quote(
+            blockers, capacity, quote = _payout_blockers(
                 cfg.product_id,
                 cfg.account_size,
                 a.payout_rules,
@@ -521,17 +737,45 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
                 cycle_session_pnls=a.cycle_session_pnls,
                 qualifying_days=a.qualifying_days,
                 payout_count=a.payout_count,
-                request_mode="MAX_ALLOWED",
             )
-            payout_available = float(q.get("available_now") or 0.0)
-            payout_eligible = bool(q.get("eligible"))
-            payout_reason = str(q.get("reason"))
+            if quote.get("eligible"):
+                claimable_gross = capacity
+            else:
+                accrued_blocked_gross = capacity
+        share = _trader_share_for_account(cfg, a) if a.payout_rules else 1.0
+        residual_profit = max(0.0, a.balance - a.start_balance)
+
+        if a.status == "FAILED" and residual_profit > 0:
+            forfeiture_rows.append({
+                "account_id": a.account_id,
+                "futures_session_id": a.failure_session,
+                "classification": "CONFIRMED_ACCOUNT_CLOSED_RESIDUAL_SIM_PROFIT_LOST",
+                "status": "CONFIRMED",
+                "gross_value": residual_profit,
+                "estimated_trader_cash_value": residual_profit * share,
+                "reason": a.failure_reason or "ACCOUNT_FAILED",
+                "note": "Positive simulated profit remaining above starting balance when the account closed is no longer available for future payout.",
+            })
+        elif a.status == "PAYOUT_CYCLE_COMPLETE" and residual_profit > 0:
+            forfeiture_rows.append({
+                "account_id": a.account_id,
+                "futures_session_id": None,
+                "classification": "LIVE_TRANSITION_VALUE_UNRESOLVED",
+                "status": "UNRESOLVED_NOT_COUNTED_AS_FORFEITED_OR_CASH",
+                "gross_value": residual_profit,
+                "estimated_trader_cash_value": None,
+                "reason": "PAYOUT_CYCLE_COMPLETE",
+                "note": "Full live-transition rules are Step 29-31 work. This value is preserved but not counted as cash or confirmed forfeiture.",
+            })
+
         account_rows.append({
             "account_id": a.account_id,
             "status": a.status,
             "failure_reason": a.failure_reason,
             "failure_session": a.failure_session,
             "provision_session": a.provision_session,
+            "acquisition_cost_basis": a.acquisition_cost if cost_policy.cost_basis_known else None,
+            "refund_or_bonus_basis": a.refund_or_bonus if cost_policy.cost_basis_known else None,
             "starting_balance": a.start_balance,
             "ending_balance": a.balance,
             "ending_failure_floor": a.floor,
@@ -540,22 +784,72 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
             "sessions_traded": a.sessions_traded,
             "wins": a.winning_trades,
             "losses": a.losing_trades,
-            "firm_commissions": a.total_commission,
+            "firm_commissions_embedded_in_prop_pnl": a.total_commission,
             "source_trade_net_pnl": a.total_source_net_pnl,
             "account_realized_pnl_until_breach": a.total_account_realized_pnl,
             "payout_count": a.payout_count,
             "gross_payout_deductions": a.gross_payouts,
             "trader_wallet_cash": a.wallet_cash,
             "qualifying_days_current_cycle": a.qualifying_days,
-            "payout_available_now_gross": payout_available,
-            "payout_eligible_now": payout_eligible,
-            "payout_eligibility_reason": payout_reason,
+            "claimable_now_gross": claimable_gross,
+            "claimable_now_estimated_trader_cash": claimable_gross * share,
+            "accrued_but_blocked_gross_capacity": accrued_blocked_gross,
+            "accrued_but_blocked_estimated_trader_cash": accrued_blocked_gross * share,
+            "payout_blockers": "; ".join(blockers) if blockers else ("ELIGIBLE_NOW" if claimable_gross > 0 else str(quote.get("reason") or "NONE")),
+            "payout_eligibility_reason_raw": quote.get("reason"),
         })
 
     accounts_df = pd.DataFrame(account_rows)
     household_df = pd.DataFrame(household_rows)
     trades_df = pd.DataFrame(trade_rows)
     payouts_df = pd.DataFrame(payout_rows)
+    costs_df = pd.DataFrame(cost_rows)
+    forfeitures_df = pd.DataFrame(forfeiture_rows)
+
+    bottleneck_rows: List[Dict[str, Any]] = []
+    if total_shortfall:
+        bottleneck_rows.append({
+            "category": "CAPACITY",
+            "reason": "UNROUTED_CAPACITY_SHORTFALL",
+            "count": int(total_shortfall),
+            "gross_value_affected": None,
+            "estimated_trader_cash_value_affected": None,
+            "note": "Valid source signals that could not be assigned an account slot.",
+        })
+    if not accounts_df.empty:
+        failed = accounts_df[accounts_df["status"] == "FAILED"]
+        for reason, g in failed.groupby("failure_reason", dropna=False):
+            bottleneck_rows.append({
+                "category": "ACCOUNT_FAILURE",
+                "reason": str(reason or "UNKNOWN_FAILURE"),
+                "count": int(len(g)),
+                "gross_value_affected": float(g["account_profit_inventory_not_cash"].clip(lower=0).sum()),
+                "estimated_trader_cash_value_affected": None,
+                "note": "Account closures by recorded failure reason.",
+            })
+        active = accounts_df[accounts_df["status"] == "ACTIVE"]
+        if not active.empty:
+            for _, r in active.iterrows():
+                blocker_text = str(r.get("payout_blockers") or "")
+                if blocker_text and blocker_text not in {"ELIGIBLE_NOW", "NONE"}:
+                    for blocker in [x.strip() for x in blocker_text.split(";") if x.strip()]:
+                        bottleneck_rows.append({
+                            "category": "ENDING_PAYOUT_BLOCKER",
+                            "reason": blocker,
+                            "count": 1,
+                            "gross_value_affected": float(r.get("accrued_but_blocked_gross_capacity") or 0.0),
+                            "estimated_trader_cash_value_affected": float(r.get("accrued_but_blocked_estimated_trader_cash") or 0.0),
+                            "note": "Active end-of-data account has accrued payout capacity but has not cleared this gate.",
+                        })
+    if bottleneck_rows:
+        bdf = pd.DataFrame(bottleneck_rows)
+        bottlenecks_df = bdf.groupby(["category", "reason", "note"], as_index=False, dropna=False).agg(
+            count=("count", "sum"),
+            gross_value_affected=("gross_value_affected", "sum"),
+            estimated_trader_cash_value_affected=("estimated_trader_cash_value_affected", "sum"),
+        )
+    else:
+        bottlenecks_df = pd.DataFrame(columns=["category", "reason", "note", "count", "gross_value_affected", "estimated_trader_cash_value_affected"])
 
     coverage = assess_rule_coverage(rulebook, cfg.product_id, cfg.account_size, "sim_funded")
     source_hashes = sorted(set(str(x) for x in work.get("source_sha256", pd.Series(dtype=str)).dropna().unique()))
@@ -577,20 +871,35 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
     failed_accounts = int((accounts_df["status"] == "FAILED").sum()) if not accounts_df.empty else 0
     completed_accounts = int((accounts_df["status"] == "PAYOUT_CYCLE_COMPLETE").sum()) if not accounts_df.empty else 0
     wallet_cash = float(accounts_df["trader_wallet_cash"].sum()) if not accounts_df.empty else 0.0
-    unpaid_available = float(accounts_df.loc[accounts_df["payout_eligible_now"], "payout_available_now_gross"].sum()) if not accounts_df.empty else 0.0
+    claimable_gross = float(accounts_df["claimable_now_gross"].sum()) if not accounts_df.empty else 0.0
+    claimable_cash = float(accounts_df["claimable_now_estimated_trader_cash"].sum()) if not accounts_df.empty else 0.0
+    accrued_blocked_gross = float(accounts_df["accrued_but_blocked_gross_capacity"].sum()) if not accounts_df.empty else 0.0
+    accrued_blocked_cash = float(accounts_df["accrued_but_blocked_estimated_trader_cash"].sum()) if not accounts_df.empty else 0.0
     active_profit_inventory = float(accounts_df.loc[accounts_df["status"] == "ACTIVE", "account_profit_inventory_not_cash"].sum()) if not accounts_df.empty else 0.0
+    external_costs = float(costs_df["external_cash_cost"].sum()) if not costs_df.empty else 0.0
+    refunds = float(costs_df["refund_or_bonus_cash"].sum()) if not costs_df.empty else 0.0
+    cash_flow_ex_unknown_cost = wallet_cash - external_costs + refunds
+    realized_net = cash_flow_ex_unknown_cost if cost_policy.cost_basis_known else None
+    active_cost_basis = float(accounts_df.loc[accounts_df["status"] == "ACTIVE", "acquisition_cost_basis"].fillna(0.0).sum()) if cost_policy.cost_basis_known and not accounts_df.empty else None
+    failed_cost_basis = float(accounts_df.loc[accounts_df["status"] == "FAILED", "acquisition_cost_basis"].fillna(0.0).sum()) if cost_policy.cost_basis_known and not accounts_df.empty else None
+    completed_cost_basis = float(accounts_df.loc[accounts_df["status"] == "PAYOUT_CYCLE_COMPLETE", "acquisition_cost_basis"].fillna(0.0).sum()) if cost_policy.cost_basis_known and not accounts_df.empty else None
+    confirmed_forfeited = float(forfeitures_df.loc[forfeitures_df["status"] == "CONFIRMED", "gross_value"].sum()) if not forfeitures_df.empty else 0.0
+    unresolved_transition = float(forfeitures_df.loc[forfeitures_df["status"].str.startswith("UNRESOLVED", na=False), "gross_value"].sum()) if not forfeitures_df.empty else 0.0
+
     summary = {
         "engine_version": FLEET_ENGINE_VERSION,
         "schema_version": FLEET_SCHEMA_VERSION,
-        "run_id": f"SB5A-{fingerprint}",
+        "run_id": f"SB5B-{fingerprint}",
         "household": cfg.household_name,
         "firm": firm.get("display_name"),
         "product": product.get("display_name"),
         "product_id": cfg.product_id,
         "account_size": cfg.account_size,
         "stage": "FUNDED_ONLY_FLEET",
+        "data_mode": "REVIEW_INCLUDED_RESEARCH" if cfg.include_review_rows else "STRICT_CERTIFICATION",
+        "include_review_rows": bool(cfg.include_review_rows),
         "capacity_mode": cfg.capacity_mode,
-        "fixed_accounts_requested": cfg.fixed_accounts if cfg.capacity_mode == "FIXED_FLEET" else None,
+        "fixed_accounts_requested": cfg.fixed_accounts if cfg.capacity_mode in {"FIXED_FLEET", "MAINTAIN_FIXED_ACTIVE"} else None,
         "max_trades_per_account_per_session": cfg.max_trades_per_account_per_session,
         "source_eligible_trades": int(len(work)),
         "source_futures_sessions": int(work["futures_session_id"].nunique()),
@@ -603,12 +912,27 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
         "payout_cycle_complete_accounts": completed_accounts,
         "completed_payouts": int(accounts_df["payout_count"].sum()) if not accounts_df.empty else 0,
         "payout_cash_received": wallet_cash,
-        "unpaid_payout_available_at_end_gross": unpaid_available,
+        "claimable_now_gross_at_end": claimable_gross,
+        "claimable_now_estimated_trader_cash_at_end": claimable_cash,
+        "accrued_but_not_claimable_gross_capacity_at_end": accrued_blocked_gross,
+        "accrued_but_not_claimable_estimated_trader_cash_at_end": accrued_blocked_cash,
+        "estimated_realistically_recoverable_future_payout_cash": None,
         "active_account_profit_inventory_not_cash": active_profit_inventory,
-        "total_firm_commissions": float(accounts_df["firm_commissions"].sum()) if not accounts_df.empty else 0.0,
-        "account_acquisition_costs": None,
-        "realized_household_net_after_all_costs": None,
-        "economics_status": "PAYOUT_AND_TRADING_FEES_ONLY_ACCOUNT_ACQUISITION_COSTS_NOT_YET_MODELED",
+        "total_firm_commissions_embedded_in_prop_pnl": float(accounts_df["firm_commissions_embedded_in_prop_pnl"].sum()) if not accounts_df.empty else 0.0,
+        "acquisition_cost_mode": cost_policy.mode,
+        "cost_basis_known": cost_policy.cost_basis_known,
+        "account_and_household_external_costs": external_costs,
+        "account_acquisition_costs": external_costs if cost_policy.cost_basis_known else None,
+        "refunds_or_bonuses_received": refunds,
+        "cash_flow_since_sim_start_excluding_unknown_preexisting_inventory_cost": cash_flow_ex_unknown_cost,
+        "realized_household_net_cash_after_modeled_external_costs": realized_net,
+        "realized_household_net_after_all_costs": realized_net,
+        "active_accounts_cost_basis_at_end": active_cost_basis,
+        "failed_accounts_cost_basis": failed_cost_basis,
+        "payout_cycle_complete_accounts_cost_basis": completed_cost_basis,
+        "confirmed_forfeited_residual_sim_profit": confirmed_forfeited,
+        "unresolved_live_transition_value": unresolved_transition,
+        "economics_status": "MODELED_EXTERNAL_COST_BASIS" if cost_policy.cost_basis_known else "UNKNOWN_FUNDED_ACQUISITION_COST_NOT_YET_MODELED",
         "rule_coverage": coverage.get("status"),
         "payout_engine_support": _PAYOUT_ENGINE_SUPPORT.get(cfg.product_id, "NOT_MODELED"),
         "raw_strategy_baseline": {k: v for k, v in baseline.items() if k != "sessions"},
@@ -621,10 +945,12 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
         accounts=accounts_df,
         trades=trades_df,
         payouts=payouts_df,
+        costs=costs_df,
+        bottlenecks=bottlenecks_df,
+        forfeitures=forfeitures_df,
         config=asdict(cfg),
         rule_snapshot=rule_snapshot,
     )
-
 
 def build_fleet_bundle(run: FleetRun) -> bytes:
     buf = BytesIO()
@@ -636,18 +962,38 @@ def build_fleet_bundle(run: FleetRun) -> bytes:
         z.writestr("ACCOUNT_INVENTORY.csv", run.accounts.to_csv(index=False))
         z.writestr("TRADE_ROUTING.csv", run.trades.to_csv(index=False))
         z.writestr("PAYOUT_LEDGER.csv", run.payouts.to_csv(index=False))
+        z.writestr("COST_LEDGER.csv", run.costs.to_csv(index=False))
+        z.writestr("BOTTLENECK_SUMMARY.csv", run.bottlenecks.to_csv(index=False))
+        z.writestr("FORFEITURE_AND_TRANSITION_VALUE_LEDGER.csv", run.forfeitures.to_csv(index=False))
         lines = [
-            "# Project StarBase v5A — Josh Single-Product Funded Fleet", "",
+            "# Project StarBase v5B — Josh Fleet Economics + Inventory", "",
             f"Run ID: **{run.summary.get('run_id')}**",
+            f"Data mode: **{run.summary.get('data_mode')}**",
             f"Product: **{run.summary.get('firm')} / {run.summary.get('product')} / ${run.summary.get('account_size'):,}**",
             f"Capacity mode: **{run.summary.get('capacity_mode')}**",
             f"Signals routed: **{run.summary.get('signals_routed'):,} / {run.summary.get('source_eligible_trades'):,}**",
             f"Signal capture: **{run.summary.get('signal_capture_percent',0):.2f}%**",
             f"Accounts provisioned: **{run.summary.get('accounts_provisioned'):,}**",
-            f"Payout cash received: **${run.summary.get('payout_cash_received',0):,.2f}**", "",
-            "IMPORTANT: v5A does not yet include evaluation/direct-funded acquisition costs, resets, activation fees, subscriptions or refunds.",
-            "Therefore payout cash is NOT final business profit. Step 24/25 will add exact acquisition/fee economics.",
-            "End-of-data active accounts and unpaid payout eligibility are preserved rather than treated as failures.",
+            f"Payout cash received: **${run.summary.get('payout_cash_received',0):,.2f}**",
+            f"External account/household costs modeled: **${run.summary.get('account_and_household_external_costs',0):,.2f}**",
+            f"Refunds/bonuses modeled: **${run.summary.get('refunds_or_bonuses_received',0):,.2f}**",
+            f"Claimable now at data end (estimated trader cash): **${run.summary.get('claimable_now_estimated_trader_cash_at_end',0):,.2f}**",
+            f"Accrued but blocked at data end (estimated trader cash if gates later clear): **${run.summary.get('accrued_but_not_claimable_estimated_trader_cash_at_end',0):,.2f}**", "",
+        ]
+        if run.summary.get("realized_household_net_cash_after_modeled_external_costs") is None:
+            lines += [
+                "**Final business net is NOT certified for this run.** The funded acquisition cost basis is unknown/pre-existing.",
+                "Use Manual Effective Funded Cost for a research-grade costed fleet, or later run the full evaluation factory to manufacture funded accounts exactly.", "",
+            ]
+        else:
+            lines += [
+                f"Realized household net cash after modeled external costs: **${run.summary.get('realized_household_net_cash_after_modeled_external_costs',0):,.2f}**",
+                "This is exact only to the stated cost assumption. Trading commissions are already embedded in prop-account P&L and are not subtracted a second time from household cash.", "",
+            ]
+        lines += [
+            "End-of-data accounts are preserved. Claimable-now and accrued-but-blocked payout capacity are reported separately.",
+            "Estimated realistically recoverable future payout cash remains intentionally unmodeled until survival/live-transition logic is complete.",
+            "Confirmed residual value lost on failed accounts is separated from unresolved live-transition value.",
         ]
         z.writestr("REPORT.md", "\n".join(lines) + "\n")
     return buf.getvalue()

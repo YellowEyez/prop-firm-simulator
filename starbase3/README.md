@@ -67,6 +67,10 @@ The controlling fleet/optimizer design requirements are now preserved in `STARBA
 
 ---
 
-## Current cumulative StarBase release: v5A
+## Current cumulative StarBase release: v5B
 
-The newest workspace is **Josh Single-Product Funded Fleet (v5A)**. It is the first fleet-level view: one audited strategy/profile can be distributed across many independently stateful funded accounts, including a clearly labeled Force-100%-Signal-Capture research mode. See `STARBASE_MASTER_ROADMAP.md` for the controlling 60-step plan and `STARBASE_V05A_VALIDATION_REPORT.md` for certification numbers.
+The newest workspace is **Josh Fleet Economics + Inventory (v5B)**. It keeps the v5A fleet routing intact and adds the Step-24 economics/inventory bridge: explicit funded-account cost basis, replacement cost events, household realized cash, active-account cost basis, claimable-now vs accrued-but-blocked payout value, payout blockers, forfeiture/transition-value ledgers, Maintain-N-active research mode, and a prominent STRICT-vs-REVIEW data badge.
+
+For evaluation-based funded products, funded-only runs still require an explicit effective funded-acquisition-cost assumption until the Evaluation Factory can manufacture those accounts through real evaluation attempts. StarBase therefore refuses to call unknown-cost inventory final business profit.
+
+See `STARBASE_MASTER_ROADMAP.md` for the controlling 60-step plan and `STARBASE_V05B_VALIDATION_REPORT.md` for regression targets.

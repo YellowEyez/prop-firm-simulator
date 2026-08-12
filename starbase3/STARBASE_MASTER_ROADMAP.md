@@ -3,12 +3,14 @@
 This is the controlling 60-step build checklist. Step numbers do not change casually.
 Each release must report: code-verified steps, deployed-certified steps, newly implemented steps, and next sequential target.
 
-## Current status at v5A
+## Current status at v5B
 
-- Previously deployed-certified: **20 / 60**
-- Additional steps code/regression verified in v5A source: **19, 20, 23, 33, 34, 35, 36**
-- If the user's v5A Streamlit certification test passes, deployed-certified total becomes **27 / 60**.
-- Important: implementation is not the same as full business-profit certification. Steps 24-32 remain required before multi-firm household profit claims.
+- Deployment-certified from user-returned ledgers: **24 / 60**.
+- Verified steps are 1-18, 21-22, and 33-36.
+- Implemented/code-regression-ready but not yet deployment-certified: **19, 20, 23, 24**.
+- v5B targets **Step 24 — Exact fee and account-cost engine**. After the user's strict Sydney v5B certification passes, deployed-certified progress becomes **25 / 60**.
+- v5B also contains partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
+- Important: implementation is not the same as full business-profit certification. Steps 25-32 remain required before multi-firm household profit claims.
 
 ## Phase 1 — Trusted TradingView Input
 - [x] 1 Freeze original simulator baseline
@@ -33,14 +35,14 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 - [x] 16 Explicit account-state object + accounting ledger
 - [x] 17 Chronological single-account trade routing
 - [x] 18 MAE-aware drawdown breach engine
-- [x] 19 Evaluation PASS / FAIL / EXPIRE termination
-- [x] 20 Correct fresh-funded activation
+- [ ] 19 Evaluation PASS / FAIL / EXPIRE termination *(implemented; deployment certification still pending)*
+- [ ] 20 Correct fresh-funded activation *(implemented; deployment certification still pending)*
 - [x] 21 Core funded payout engine
 - [x] 22 Separate payout cash vs account value
-- [x] 23 Cross-account comparison lab
+- [ ] 23 Cross-account comparison lab *(implemented; deployment certification still pending)*
 
 ## Phase 4 — Exact Economics + Single-Account Certification
-- [ ] 24 Exact fee and account-cost engine
+- [ ] 24 Exact fee and account-cost engine *(v5B implemented/code-verified; deployment certification pending)*
 - [ ] 25 Instrument-specific trading fees
 - [ ] 26 Complete rule semantics for every supported product
 - [ ] 27 Golden single-account verification suite for each core product
@@ -92,4 +94,4 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. The next sequential build target returns to **Step 24** after v5A deployment certification.
+A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returns to the sequential trust path at **Step 24**. After Step 24 deployment certification, the next sequential targets are **25 instrument-specific trading fees, 26 complete rule semantics, and 27 golden single-account verification**.
