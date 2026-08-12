@@ -20,6 +20,8 @@ from starbase_account_ui import render_account_state_page
 from starbase_historical_runner_ui import render_historical_runner_page
 from starbase_lifecycle_ui import render_lifecycle_page
 from starbase_fleet_ui import render_fleet_page
+from starbase_dataset_library_ui import render_dataset_library_page
+from starbase_workspaces import WORKSPACE_LABELS, workspace_key
 
 # Import simulation engine
 from simulation import (
@@ -246,46 +248,53 @@ def main():
         st.header("🚀 StarBase Mode")
         starbase_mode = st.radio(
             "Choose workspace",
-            ["TradingView Import + Audit (v2)", "Prop-Firm Rulebook (v3)", "Research Integrity + Provenance (v3.5)", "Single-Account State + Ledger (v4A)", "Historical Single-Account Trader (v4B)", "Lifecycle + Account Comparison (v4C)", "Josh Fleet Economics + Inventory (v5B)", "Legacy Simulator (reference only)"],
+            WORKSPACE_LABELS,
             index=0,
-            help="v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
+            help="v5C stores reusable named strategy datasets. v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
         )
-        if starbase_mode.startswith("TradingView"):
+        route_key = workspace_key(starbase_mode)
+        if route_key == "dataset_library":
+            st.success("v5C dataset library: save named TradingView strategy/profile batches once, add notes/timeframe metadata, reuse them across StarBase, and back them up as one portable Dataset Vault ZIP.")
+        elif route_key == "audit":
             st.success("v2 audit mode: lifecycle simulation disabled until source integrity passes.")
-        elif starbase_mode.startswith("Prop-Firm"):
+        elif route_key == "rulebook":
             st.success("v3 rulebook mode: current rules are classified and source-cited; execution begins in v4.")
-        elif starbase_mode.startswith("Research Integrity"):
+        elif route_key == "integrity":
             st.success("v3.5 integrity mode: fingerprint sources, classify fidelity, verify rule coverage, and preserve experiment lineage before v4.")
-        elif starbase_mode.startswith("Single-Account"):
+        elif route_key == "account_state":
             st.success("v4A accounting mode: one-account balance state and immutable accounting ledger. Drawdown/pass/payout enforcement begins in later v4 stages.")
-        elif starbase_mode.startswith("Historical Single-Account"):
+        elif route_key == "historical_runner":
             st.success("v4B trader mode: exact TradingView signals are routed chronologically into one account with per-session caps, commissions, MAE-aware drawdown and EOD floor logic.")
-        elif starbase_mode.startswith("Lifecycle +"):
+        elif route_key == "lifecycle":
             st.success("v4C lifecycle mode: evaluations actually stop at pass/fail/expiry, supported funded products take real rule-based payouts, and the same exact profile can be compared across accounts.")
-        elif starbase_mode.startswith("Josh Single-Product"):
-            st.success("v5B fleet economics: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
+        elif route_key == "fleet_economics":
+            st.success("v5C fleet economics: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 
-    if starbase_mode.startswith("TradingView"):
+    route_key = workspace_key(starbase_mode)
+    if route_key == "dataset_library":
+        render_dataset_library_page()
+        return
+    if route_key == "audit":
         render_tradingview_audit_page()
         return
-    if starbase_mode.startswith("Prop-Firm"):
+    if route_key == "rulebook":
         render_rulebook_page()
         return
-    if starbase_mode.startswith("Research Integrity"):
+    if route_key == "integrity":
         render_integrity_page()
         return
-    if starbase_mode.startswith("Single-Account"):
+    if route_key == "account_state":
         render_account_state_page()
         return
-    if starbase_mode.startswith("Historical Single-Account"):
+    if route_key == "historical_runner":
         render_historical_runner_page()
         return
-    if starbase_mode.startswith("Lifecycle +"):
+    if route_key == "lifecycle":
         render_lifecycle_page()
         return
-    if starbase_mode.startswith("Josh Single-Product"):
+    if route_key == "fleet_economics":
         render_fleet_page()
         return
 

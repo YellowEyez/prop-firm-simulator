@@ -3,14 +3,19 @@
 This is the controlling 60-step build checklist. Step numbers do not change casually.
 Each release must report: code-verified steps, deployed-certified steps, newly implemented steps, and next sequential target.
 
-## Current status at v5B
+## Current status at v5C
 
 - Deployment-certified from user-returned ledgers: **24 / 60**.
 - Verified steps are 1-18, 21-22, and 33-36.
 - Implemented/code-regression-ready but not yet deployment-certified: **19, 20, 23, 24**.
-- v5B targets **Step 24 — Exact fee and account-cost engine**. After the user's strict Sydney v5B certification passes, deployed-certified progress becomes **25 / 60**.
-- v5B also contains partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
+- v5B implemented **Step 24 — Exact fee and account-cost engine**, but the deployed Josh workspace routing defect prevented a trustworthy UI certification. v5C repairs that route. After the user's strict Sydney v5C economics certification passes, deployed-certified progress becomes **25 / 60**.
+- v5B/v5C also contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
 - Important: implementation is not the same as full business-profit certification. Steps 25-32 remain required before multi-firm household profit claims.
+
+
+### Supporting infrastructure milestones (do not renumber the 60 core steps)
+- [x] **D1 — Reusable Strategy Dataset Library + Dataset Vault (v5C)**: save named exact TradingView datasets with notes, source hashes, audit summary, year range and inferred/overridable chart interval; reuse them across simulation workspaces; delete old datasets; export/restore the whole library as one portable ZIP.
+- [x] **D2 — Exact workspace routing map (v5C)**: displayed workspace names map to stable routing keys so Josh Fleet Economics cannot silently fall through to Legacy again.
 
 ## Phase 1 — Trusted TradingView Input
 - [x] 1 Freeze original simulator baseline
@@ -94,4 +99,4 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returns to the sequential trust path at **Step 24**. After Step 24 deployment certification, the next sequential targets are **25 instrument-specific trading fees, 26 complete rule semantics, and 27 golden single-account verification**.
+A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C fixes the deployed routing needed to certify it and adds the non-numbered dataset-library infrastructure. After Step 24 deployment certification, the next sequential targets are **25 instrument-specific trading fees, 26 complete rule semantics, and 27 golden single-account verification**.

@@ -4,6 +4,7 @@ import json
 import streamlit as st
 
 from tradingview_audit import AuditPolicy, audit_tradingview_files, strict_valid_ledger, reviewed_usable_ledger
+from starbase_dataset_library_ui import select_dataset_or_upload
 from starbase_rulebook import load_rulebook
 from starbase_lifecycle import LifecycleConfig, run_lifecycle, comparison_rows, build_lifecycle_bundle
 
@@ -37,12 +38,11 @@ def render_lifecycle_page():
     st.caption("This workspace fixes v4B's biggest limitation: evaluations actually stop when they pass/fail/expire, and supported funded products actually take payouts. It is still one account or one eval→funded lineage; v5 fans signals across fleets.")
     st.info("If two products now produce similar results, it should be because their rules and the selected trade path genuinely did so — not because StarBase kept trading every account indefinitely after its target.")
 
-    files = st.file_uploader("TradingView List of Trades CSV segments", type=["csv"], accept_multiple_files=True, key="v4c_files")
-    c1,c2=st.columns(2)
-    strategy_id=c1.text_input("Strategy ID", value="Sydney_01", key="v4c_strategy")
-    profile_id=c2.text_input("Exact profile ID", value="1NQ", key="v4c_profile")
+    files, strategy_id, profile_id, saved_dataset = select_dataset_or_upload(
+        key_prefix="v4c", default_strategy="Sydney_01", default_profile="1NQ"
+    )
     if not files:
-        st.warning("Upload the exact TradingView profile you want StarBase to trade.")
+        st.warning("Choose a saved strategy dataset or upload the exact TradingView profile you want StarBase to trade.")
         return
     try:
         audit=audit_tradingview_files(files, strategy_id=strategy_id, profile_id=profile_id, policy=AuditPolicy())

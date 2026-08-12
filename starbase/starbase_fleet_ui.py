@@ -1,4 +1,4 @@
-"""Streamlit UI for Project StarBase v5B Josh fleet economics + inventory."""
+"""Streamlit UI for Project StarBase v5C Josh fleet economics + inventory."""
 from __future__ import annotations
 
 import streamlit as st
@@ -8,6 +8,7 @@ from starbase_rulebook import load_rulebook
 from starbase_lifecycle import _PAYOUT_ENGINE_SUPPORT
 from starbase_fleet import FleetConfig, raw_strategy_baseline, run_single_product_fleet, build_fleet_bundle
 from starbase_economics import load_cost_reference, cost_reference_for_product
+from starbase_dataset_library_ui import select_dataset_or_upload
 
 
 def _money(x):
@@ -33,18 +34,19 @@ def _funded_options(rulebook):
 
 
 def render_fleet_page():
-    st.header("🏠 Josh Household — Fleet Economics + Ending Inventory (v5B)")
-    st.caption("StarBase Progress: 24/60 deployment-verified before this release. v5B targets Step 24 economics plus corrective fleet/inventory features. The 60-step sequence remains intact.")
-    st.info("v5B is still funded-only and one product at a time. It now separates payout cash, external account costs, embedded trading commissions, active-account cost basis, claimable payouts, accrued-but-blocked payout capacity, and unresolved live-transition value.")
+    st.header("🏠 Josh Household — Fleet Economics + Ending Inventory (v5C)")
+    st.caption("StarBase Progress: 24/60 deployment-certified. Step 24 economics is implemented and awaiting this repaired v5C UI certification. Dataset Library infrastructure D1/D2 is complete; the 60-step sequence remains intact.")
+    st.info("v5C is still funded-only and one product at a time. It now separates payout cash, external account costs, embedded trading commissions, active-account cost basis, claimable payouts, accrued-but-blocked payout capacity, and unresolved live-transition value.")
 
-    files=st.file_uploader("TradingView List of Trades CSV segments", type=["csv"], accept_multiple_files=True, key="v5b_files")
-    c1,c2,c3=st.columns(3)
-    household=c1.text_input("Household / strategy business name", value="Josh", key="v5b_household")
-    strategy_id=c2.text_input("Strategy ID", value="Sydney_01", key="v5b_strategy")
-    profile_id=c3.text_input("Exact profile ID", value="1NQ", key="v5b_profile")
+    files, strategy_id, profile_id, saved_dataset = select_dataset_or_upload(
+        key_prefix="v5b", default_strategy="Sydney_01", default_profile="1NQ"
+    )
+    household=st.text_input("Household / strategy business name", value="Josh", key="v5b_household")
     if not files:
-        st.warning("Upload the exact TradingView profile to begin the fleet test.")
+        st.warning("Choose a saved strategy dataset or upload the exact TradingView profile to begin the fleet test.")
         return
+    if saved_dataset is not None:
+        st.caption(f"Saved dataset identity: **{saved_dataset.get('display_name')}** · chart interval **{saved_dataset.get('chart_interval','Unknown')}** · profile **{profile_id}**")
 
     try:
         audit=audit_tradingview_files(files, strategy_id=strategy_id, profile_id=profile_id, policy=AuditPolicy())
@@ -231,5 +233,5 @@ def render_fleet_page():
             st.dataframe(run.payouts, use_container_width=True, hide_index=True)
     with tabs[7]:
         blob=build_fleet_bundle(run)
-        st.download_button("Download complete StarBase v5B analysis ZIP", blob, "StarBase_v5B_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
+        st.download_button("Download complete StarBase v5C analysis ZIP", blob, "StarBase_v5C_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
         st.caption("Includes household/session ledger, account inventory, trade routing, payout ledger, COST_LEDGER, BOTTLENECK_SUMMARY and forfeiture/transition-value ledger for deeper ChatGPT analysis.")

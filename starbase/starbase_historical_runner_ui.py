@@ -16,6 +16,7 @@ from starbase_historical_runner import (
 )
 from starbase_rulebook import load_rulebook
 from tradingview_audit import AuditPolicy, audit_tradingview_files, reviewed_usable_ledger, strict_valid_ledger
+from starbase_dataset_library_ui import select_dataset_or_upload
 
 
 def _money(x):
@@ -37,13 +38,12 @@ def render_historical_runner_page() -> None:
         "Those transitions arrive cumulatively in v4D-v4F. v5 then fans the same signal stream across many accounts."
     )
 
-    files = st.file_uploader("TradingView List of Trades CSV segments", type=["csv"], accept_multiple_files=True, key="v4b_files")
-    c1, c2 = st.columns(2)
-    strategy_id = c1.text_input("Strategy ID", value="Sydney_01", key="v4b_strategy")
-    profile_id = c2.text_input("Exact profile ID", value="1NQ", key="v4b_profile")
+    files, strategy_id, profile_id, saved_dataset = select_dataset_or_upload(
+        key_prefix="v4b", default_strategy="Sydney_01", default_profile="1NQ"
+    )
 
     if not files:
-        st.warning("Upload one or more TradingView CSV segments to begin trading the account.")
+        st.warning("Choose a saved strategy dataset or upload one or more TradingView CSV segments to begin trading the account.")
         return
 
     try:

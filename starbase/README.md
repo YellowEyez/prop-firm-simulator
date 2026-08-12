@@ -67,10 +67,14 @@ The controlling fleet/optimizer design requirements are now preserved in `STARBA
 
 ---
 
-## Current cumulative StarBase release: v5B
+## Current cumulative StarBase release: v5C
 
-The newest workspace is **Josh Fleet Economics + Inventory (v5B)**. It keeps the v5A fleet routing intact and adds the Step-24 economics/inventory bridge: explicit funded-account cost basis, replacement cost events, household realized cash, active-account cost basis, claimable-now vs accrued-but-blocked payout value, payout blockers, forfeiture/transition-value ledgers, Maintain-N-active research mode, and a prominent STRICT-vs-REVIEW data badge.
+v5C repairs a deployed workspace-routing defect that could send **Josh Fleet Economics + Inventory** into the Legacy Simulator. Workspace routing now uses stable exact keys rather than brittle label-prefix checks.
 
-For evaluation-based funded products, funded-only runs still require an explicit effective funded-acquisition-cost assumption until the Evaluation Factory can manufacture those accounts through real evaluation attempts. StarBase therefore refuses to call unknown-cost inventory final business profit.
+v5C also adds the **Strategy Dataset Library**. Upload all CSV segments for one exact TradingView strategy/profile once, save a name/notes/profile identity, and reuse it from the historical runner, lifecycle comparison and Josh fleet workspaces. StarBase infers the likely chart interval from elapsed trade time divided by TradingView `Duration (bars)` and lets the user override the label.
 
-See `STARBASE_MASTER_ROADMAP.md` for the controlling 60-step plan and `STARBASE_V05B_VALIDATION_REPORT.md` for regression targets.
+The six known Sydney files infer as **10s** with about **95% detector agreement**, span **2025-2026**, and therefore suggest the name `Sydney_10s_2025-2026`.
+
+Because Streamlit Community Cloud runtime storage is not guaranteed to persist across redeploys/restarts, the library includes a portable **StarBase Dataset Vault ZIP**. One vault restores all saved raw CSVs, names, notes, hashes and metadata.
+
+Core deployment-certified progress remains **24 / 60** until the Step-24 economics smoke test runs successfully on the repaired Josh page. See `STARBASE_MASTER_ROADMAP.md` and `STARBASE_V05C_VALIDATION_REPORT.md`.
