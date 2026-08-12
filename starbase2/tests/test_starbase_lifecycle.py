@@ -95,3 +95,16 @@ def test_comparison_lab_produces_distinct_wallet_cash():
     out=comparison_rows(rb,df,configs)
     assert len(out)==2
     assert out.loc[0,'wallet_cash'] != out.loc[1,'wallet_cash']
+
+
+def test_session_ledger_separates_trading_pnl_from_payout_deduction():
+    rb=load_rulebook()
+    df=_ledger([{'day':d,'pnl':500,'mae':-100} for d in range(1,6)])
+    r=run_stage(rb,df,LifecycleConfig('lucid_flex',50000,'FUNDED_ONLY',commission_per_contract_round_trip=0),'sim_funded')
+    last=r.sessions.iloc[-1]
+    assert last['session_source_trade_net_pnl']==500
+    assert last['session_account_realized_trading_pnl']==500
+    assert last['pre_payout_balance']==52500
+    assert last['payout_deduction_gross']==1250
+    assert last['payout_cash_to_trader']==1125
+    assert last['session_end_balance']==51250

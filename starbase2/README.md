@@ -64,3 +64,9 @@ The **Historical Single-Account Trader (v4B)** workspace now supports:
 v4B.1 keeps the v4B historical single-account trading logic intact and fixes the supported deployment layout. The canonical Streamlit folder is `starbase` and the main module is `starbase/app.py`. Avoid spaces and parentheses in the deployed app-directory name.
 
 The controlling fleet/optimizer design requirements are now preserved in `STARBASE_FLEET_AND_OPTIMIZER_REQUIREMENTS.md`. Most importantly, the future `1 trade per account per futures session` rule applies independently to every account. Thirty valid signals can therefore feed up to thirty eligible accounts in one session when account inventory and firm rules allow it.
+
+---
+
+## Current cumulative StarBase release: v5A
+
+The newest workspace is **Josh Single-Product Funded Fleet (v5A)**. It is the first fleet-level view: one audited strategy/profile can be distributed across many independently stateful funded accounts, including a clearly labeled Force-100%-Signal-Capture research mode. See `STARBASE_MASTER_ROADMAP.md` for the controlling 60-step plan and `STARBASE_V05A_VALIDATION_REPORT.md` for certification numbers.

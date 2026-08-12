@@ -322,6 +322,7 @@ def run_stage(rulebook: Dict[str, Any], ledger: pd.DataFrame, config: LifecycleC
         session_start_balance = balance
         session_floor_start = floor
         session_net = 0.0
+        session_source_net = 0.0
         session_gross = 0.0
         session_commission = 0.0
         session_routed = 0
@@ -415,6 +416,7 @@ def run_stage(rulebook: Dict[str, Any], ledger: pd.DataFrame, config: LifecycleC
             session_commission += commission
             total_commission += commission
             session_net += realized_net
+            session_source_net += net
             if floor_before is not None:
                 min_cushion = min(min_cushion, balance_before - floor_before, low - floor_before)
 
@@ -439,6 +441,7 @@ def run_stage(rulebook: Dict[str, Any], ledger: pd.DataFrame, config: LifecycleC
         total_profit = balance - start_balance
         progress = _eval_pass_state(config.product_id, stage_rules, completed_session_pnls, total_profit, traded_session_count) if stage == "evaluation" else _target_progress(config.product_id, stage_rules, completed_session_pnls, total_profit)
 
+        pre_payout_balance = balance
         payout_event = None
         if stage == "evaluation" and status == "ACTIVE" and progress.get("evaluation_pass_ready"):
             status = "PASSED"
@@ -483,7 +486,11 @@ def run_stage(rulebook: Dict[str, Any], ledger: pd.DataFrame, config: LifecycleC
         session_rows.append({
             "futures_session_id": sid, "source_signals": int(session_signal_counts.get(sid, len(group))), "trades_routed": session_routed,
             "session_start_balance": session_start_balance, "session_gross_pnl": session_gross, "session_commission": session_commission,
-            "session_net_pnl": session_net, "session_end_balance": balance, "floor_start": session_floor_start, "floor_end": floor,
+            "session_source_trade_net_pnl": session_source_net, "session_account_realized_trading_pnl": session_net,
+            "session_net_pnl": session_net, "pre_payout_balance": pre_payout_balance,
+            "payout_deduction_gross": 0.0 if payout_event is None else payout_event["gross_request"],
+            "payout_cash_to_trader": 0.0 if payout_event is None else payout_event["trader_cash"],
+            "session_end_balance": balance, "floor_start": session_floor_start, "floor_end": floor,
             "highest_eod_balance": highest_eod, "session_dll_paused": session_dll_paused, "session_breached": session_breached,
             "account_status": status, "qualifying_days_current_cycle": qualifying_days, "payout_count": payout_count,
             "wallet_cash": wallet_cash, "payout_event_gross": None if payout_event is None else payout_event["gross_request"],
@@ -598,6 +605,7 @@ def comparison_rows(rulebook: Dict[str, Any], ledger: pd.DataFrame, configs: Ite
                 "unpaid_payout_available": result.summary.get("unpaid_payout_available_gross"),
                 "evaluation_status": result.summary.get("evaluation_status"), "funded_status": result.summary.get("funded_status"),
                 "production_grade": s.get("production_grade_rule_path"), "payout_engine": s.get("payout_engine_support"),
+                "rankable": bool(s.get("production_grade_rule_path")) and (cfg.mode == "EVALUATION_ONLY" or s.get("payout_engine_support") != "NOT_MODELED"),
                 "run_id": s.get("run_id"), "error": "",
             })
         except Exception as exc:
