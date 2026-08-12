@@ -182,3 +182,30 @@ def test_failed_account_positive_residual_is_recorded_as_confirmed_forfeiture():
     assert run.summary['confirmed_forfeited_residual_sim_profit']>=0
     if run.summary['confirmed_forfeited_residual_sim_profit']>0:
         assert (run.forfeitures['status']=='CONFIRMED').any()
+
+
+def test_fee_metadata_and_realism_report_exported_in_bundle():
+    import io, zipfile, json
+    from starbase_fleet import build_fleet_bundle, build_realism_report
+    rb=load_rulebook()
+    df=_ledger([{'day':1,'pnl':100,'mae':-10}])
+    cfg=FleetConfig(
+        'lucid_flex',50000,'FORCE_100_CAPTURE',fixed_accounts=1,
+        commission_per_contract_round_trip=3.5,instrument='NQ',
+        commission_fee_status='VERIFIED_OFFICIAL',commission_fee_source='official',
+        commission_fee_verified_as_of='2026-08-12',commission_resolution='OFFICIAL_SCHEDULE',
+        payout_request_mode='NONE',acquisition_cost_mode='MANUAL_EFFECTIVE_FUNDED_COST',effective_cost_per_funded_account=100
+    )
+    run=run_single_product_fleet(rb,df,cfg)
+    assert run.summary['instrument']=='NQ'
+    assert run.summary['commission_round_trip_per_contract']==3.5
+    realism=build_realism_report(run)
+    assert realism['overall_grade']=='RESEARCH_ONLY'
+    blob=build_fleet_bundle(run)
+    with zipfile.ZipFile(io.BytesIO(blob)) as z:
+        assert 'FEE_SNAPSHOT.json' in z.namelist()
+        assert 'REALISM_REPORT.json' in z.namelist()
+        assert 'REALISM_REPORT.md' in z.namelist()
+        fee=json.loads(z.read('FEE_SNAPSHOT.json'))
+        assert fee['instrument']=='NQ'
+        assert fee['commission_round_trip_per_contract']==3.5

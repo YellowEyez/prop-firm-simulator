@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "verified_as_of": "2026-08-12",
+  "notes": "Round-trip per-contract schedules. Never borrow a fee from another firm/platform when an exact schedule is unavailable.",
+  "instruments": {
+    "NQ": {"name": "E-mini Nasdaq-100", "point_value": 20.0, "micro": false},
+    "MNQ": {"name": "Micro E-mini Nasdaq-100", "point_value": 2.0, "micro": true},
+    "ES": {"name": "E-mini S&P 500", "point_value": 50.0, "micro": false},
+    "MES": {"name": "Micro E-mini S&P 500", "point_value": 5.0, "micro": true}
+  },
+  "firms": {
+    "lucid": {
+      "default": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-02-09",
+        "round_trip": {"NQ": 3.50, "MNQ": 1.00, "ES": 3.50, "MES": 1.00},
+        "source": "https://support.lucidtrading.com/en/articles/11508978-approved-products-and-commissions",
+        "note": "Official page lists per-side NQ/ES 1.75 and MNQ/MES 0.50; StarBase doubles to round trip."
+      }
+    },
+    "tradeify": {
+      "default": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-04-28",
+        "round_trip": {"NQ": 5.76, "MNQ": 1.82, "ES": 5.76, "MES": 1.82},
+        "source": "https://help.tradeify.co/en/articles/10468315-trading-commission-fees",
+        "note": "Official total round-trip cost including exchange, NFA, clearing and commission."
+      }
+    },
+    "apex": {
+      "RITHMIC": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-08-12",
+        "round_trip": {"NQ": 3.98, "MNQ": 1.02, "ES": 3.98, "MES": 1.02},
+        "source": "https://apextraderfunding.com/help-center/rithmic/rithmic-commissions-instruments/",
+        "note": "Apex Rithmic schedule for Evaluation and Paid/Funded accounts."
+      },
+      "TRADOVATE": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-08-12",
+        "round_trip": {"NQ": 3.10, "MNQ": 1.04, "ES": 3.10, "MES": 1.04},
+        "source": "https://apextraderfunding.com/help-center/tradovate/tradovate-commission-instruments/",
+        "note": "Apex Tradovate schedule."
+      },
+      "WEALTHCHARTS": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-08-12",
+        "round_trip": {"NQ": 3.10, "MNQ": 1.04, "ES": 3.10, "MES": 1.04},
+        "source": "https://apextraderfunding.com/help-center/wealthcharts/wealthcharts-commissions-instruments/",
+        "note": "Apex WealthCharts schedule."
+      }
+    },
+    "mffu": {
+      "default": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-08-12",
+        "round_trip": {"NQ": 4.68, "MNQ": 1.90, "ES": 4.68, "MES": 1.90},
+        "source": "https://help.myfundedfutures.com/en/articles/9735811-futures-instrument-list",
+        "note": "Official total cost round trip."
+      }
+    },
+    "topstep": {
+      "TOPSTEPX": {
+        "status": "VERIFIED_OFFICIAL",
+        "effective_date": "2026-07-20",
+        "round_trip": {"NQ": 3.78, "MNQ": 1.22, "ES": 3.78, "MES": 1.22},
+        "source": "https://help.topstep.com/en/articles/8284213-topstepx-commissions-and-fees",
+        "note": "TopstepX schedule states these rates apply to Trading Combine, Express Funded and Live Funded accounts."
+      }
+    },
+    "fundednext": {
+      "default": {
+        "status": "PARTIAL_OFFICIAL",
+        "effective_date": "2026-04-08",
+        "round_trip": {"NQ": 5.76, "MNQ": null, "ES": null, "MES": null},
+        "source": "https://helpfutures.fundednext.com/en/articles/14298151-how-do-commissions-work-in-futures-trading",
+        "note": "Official FundedNext example explicitly gives NQ all-in 2.88 per side = 5.76 round trip. Other instrument rates must be confirmed from the linked current platform commission schedule before StarBase auto-runs them."
+      }
+    },
+    "takeprofittrader": {
+      "default": {
+        "status": "NOT_VERIFIED",
+        "effective_date": null,
+        "round_trip": {"NQ": null, "MNQ": null, "ES": null, "MES": null},
+        "source": "https://takeprofittrader.com/",
+        "note": "No sufficiently explicit current official per-instrument all-in schedule was verified for this StarBase release. Manual verified override required."
+      }
+    }
+  }
+}

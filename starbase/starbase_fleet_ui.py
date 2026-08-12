@@ -6,9 +6,10 @@ import streamlit as st
 from tradingview_audit import AuditPolicy, audit_tradingview_files, strict_valid_ledger, reviewed_usable_ledger
 from starbase_rulebook import load_rulebook
 from starbase_lifecycle import _PAYOUT_ENGINE_SUPPORT
-from starbase_fleet import FleetConfig, raw_strategy_baseline, run_single_product_fleet, build_fleet_bundle
+from starbase_fleet import FleetConfig, raw_strategy_baseline, run_single_product_fleet, build_fleet_bundle, build_realism_report
 from starbase_economics import load_cost_reference, cost_reference_for_product
 from starbase_dataset_library_ui import select_dataset_or_upload
+from starbase_fees import resolve_fee, infer_instrument_from_profile, available_platforms
 
 
 def _money(x):
@@ -28,15 +29,16 @@ def _funded_options(rulebook):
                     continue
                 out.append({
                     "label": f"{firm['display_name']} — {product['display_name']} — ${int(size_s)/1000:g}K",
+                    "firm_id": firm.get("firm_id"), "firm_name": firm.get("display_name"),
                     "product_id": product["product_id"], "size": int(size_s),
                 })
     return out
 
 
 def render_fleet_page():
-    st.header("🏠 Josh Household — Fleet Economics + Ending Inventory (v5C)")
-    st.caption("StarBase Progress: 24/60 deployment-certified. Step 24 economics is implemented and awaiting this repaired v5C UI certification. Dataset Library infrastructure D1/D2 is complete; the 60-step sequence remains intact.")
-    st.info("v5C is still funded-only and one product at a time. It now separates payout cash, external account costs, embedded trading commissions, active-account cost basis, claimable payouts, accrued-but-blocked payout capacity, and unresolved live-transition value.")
+    st.header("🏠 Josh Household — Fleet Economics + Fee Provenance (v5D)")
+    st.caption("StarBase Progress: 25/60 verified. Step 24 economics is certified from the uploaded v5C bundle. v5D implements Step 25 instrument/firm/platform-specific fee resolution and fee provenance.")
+    st.info("v5D remains funded-only and one product at a time, but commissions are no longer one generic fixed number. Fees resolve by firm/platform/instrument with an official-source snapshot or a clearly labeled manual override.")
 
     files, strategy_id, profile_id, saved_dataset = select_dataset_or_upload(
         key_prefix="v5b", default_strategy="Sydney_01", default_profile="1NQ"
@@ -68,21 +70,56 @@ def render_fleet_page():
         st.success("🟢 STRICT DATASET — CERTIFICATION MODE. REVIEW trades are excluded.")
         ledger=strict_valid_ledger(audit)
 
-    st.subheader("1. Raw strategy control")
-    base_comm=st.number_input("Round-trip commission / contract ($)", min_value=0.0, value=3.50, step=0.25, key="v5b_comm")
+    rb=load_rulebook()
+    opts=_funded_options(rb)
+    st.subheader("1. Product, instrument + verified trading fee")
+    selected_label=st.selectbox("Funded product", [o['label'] for o in opts], key="v5d_product")
+    selected=next(o for o in opts if o['label']==selected_label)
+
+    saved_instrument = (saved_dataset or {}).get("instrument_root")
+    inferred_instrument = saved_instrument or infer_instrument_from_profile(profile_id) or "NQ"
+    instrument_choices=["NQ","MNQ","ES","MES"]
+    if inferred_instrument not in instrument_choices:
+        inferred_instrument="NQ"
+    f1,f2=st.columns(2)
+    instrument=f1.selectbox("Futures instrument", instrument_choices, index=instrument_choices.index(inferred_instrument), key="v5d_instrument", disabled=bool(saved_instrument), help="Saved exact datasets lock their futures instrument. Create/save a separate exact MNQ/ES/MES TradingView dataset rather than relabeling NQ P&L as another contract.")
+    if saved_instrument:
+        f1.caption(f"Locked to saved exact dataset instrument: {saved_instrument}")
+    platforms=available_platforms(selected.get("firm_id"))
+    platform_variant="default"
+    if selected.get("firm_id")=="apex":
+        platform_variant=f2.selectbox("Apex connection / platform", platforms, index=0, key="v5d_fee_platform", help="Apex fees differ by Rithmic vs Tradovate/WealthCharts.")
+    else:
+        f2.caption(f"Fee context: {selected.get('firm_name')} default schedule")
+
+    auto_quote=resolve_fee(firm_id=selected.get("firm_id"), product_id=selected['product_id'], instrument=instrument, platform_variant=platform_variant)
+    fee_mode=st.radio("Trading-fee source", ["Use StarBase verified/official schedule", "Manual verified round-trip override"], horizontal=True, key="v5d_fee_mode")
+    manual_fee=None
+    if fee_mode.startswith("Manual"):
+        manual_fee=float(st.number_input("Manual all-in round-trip fee / contract ($)", min_value=0.0, value=float(auto_quote.round_trip_per_contract or 0.0), step=0.01, key="v5d_manual_fee"))
+    elif auto_quote.round_trip_per_contract is None:
+        st.error("StarBase does not have a sufficiently verified current all-in fee for this firm/platform/instrument. Switch to Manual verified override and enter the current official rate before running.")
+    fee_quote=resolve_fee(firm_id=selected.get("firm_id"), product_id=selected['product_id'], instrument=instrument, platform_variant=platform_variant, manual_override=manual_fee)
+    base_comm=fee_quote.round_trip_per_contract
+    if base_comm is None:
+        st.stop()
+    if fee_quote.status=="VERIFIED_OFFICIAL":
+        st.success(f"✅ Commission resolved: **${base_comm:.2f} round trip / {instrument} contract** · {fee_quote.status}")
+    else:
+        st.warning(f"⚠️ Commission resolved: **${base_comm:.2f} round trip / {instrument} contract** · {fee_quote.status}")
+    with st.expander("Fee source / provenance", expanded=False):
+        st.json(fee_quote.to_dict())
+        if fee_quote.source and fee_quote.source != "USER_INPUT":
+            st.caption(fee_quote.source)
+
     baseline=raw_strategy_baseline(ledger, include_review_rows=include_review, commission_per_contract_round_trip=float(base_comm))
     b1,b2,b3,b4,b5=st.columns(5)
     b1.metric("Eligible signals", f"{baseline['eligible_trades']:,}")
     b2.metric("Gross source P/L", _money(baseline['gross_pnl']))
-    b3.metric("Commissions inside P/L", _money(baseline['commissions']))
+    b3.metric(f"{instrument} commissions inside P/L", _money(baseline['commissions']))
     b4.metric("Net after commission", _money(baseline['net_after_firm_commission']))
     b5.metric("Win rate", f"{baseline['win_rate']*100:.2f}%")
-    st.caption("Control only: every eligible signal, no prop rules or account capacity. Commissions shown here reduce the prop-account trade result; they are not later subtracted a second time from Josh's bank-account cash.")
-
-    rb=load_rulebook()
-    opts=_funded_options(rb)
-    selected_label=st.selectbox("Funded product", [o['label'] for o in opts], key="v5b_product")
-    selected=next(o for o in opts if o['label']==selected_label)
+    st.caption("Control only: every eligible signal, no prop rules or account capacity. The selected firm/platform/instrument fee reduces prop-account P/L and therefore future payouts; it is not double-subtracted from Josh's external cash later.")
 
     st.subheader("2. Account-cost basis")
     catalog=load_cost_reference()
@@ -145,7 +182,11 @@ def render_fleet_page():
     cfg=FleetConfig(
         product_id=selected['product_id'], account_size=selected['size'], capacity_mode=mode,
         fixed_accounts=fixed, max_trades_per_account_per_session=cap,
-        commission_per_contract_round_trip=float(base_comm), include_review_rows=include_review,
+        commission_per_contract_round_trip=float(base_comm), instrument=instrument,
+        commission_platform_variant=platform_variant, commission_fee_status=fee_quote.status,
+        commission_fee_source=fee_quote.source, commission_fee_effective_date=fee_quote.effective_date,
+        commission_fee_verified_as_of=fee_quote.verified_as_of, commission_resolution=fee_quote.resolution,
+        include_review_rows=include_review,
         payout_request_mode=payout_mode, reward_share_override_percent=None if reward<=0 else float(reward),
         household_name=household,
         acquisition_cost_mode=cost_mode,
@@ -203,6 +244,18 @@ def render_fleet_page():
     f1.metric("Confirmed residual sim value forfeited", _money(s['confirmed_forfeited_residual_sim_profit']))
     f2.metric("Unresolved value at payout-cycle/live transition", _money(s['unresolved_live_transition_value']))
 
+    realism=build_realism_report(run)
+    with st.expander(f"Realism / trust report — {realism['overall_grade']} ({realism['high_severity_count']} high, {realism['medium_severity_count']} medium)", expanded=False):
+        st.caption("Compact by default. These are the exact reasons StarBase does or does not consider this run close to real-world deployable economics.")
+        for item in realism['issues']:
+            icon = "🔴" if item['severity']=="HIGH" else "🟠"
+            st.markdown(f"{icon} **{item['title']}**  \n{item['detail']}")
+        st.markdown("**Provenance**")
+        st.write(f"Rulebook verified as of: **{realism.get('rulebook_verified_as_of')}**")
+        st.write(f"Fee schedule status: **{realism.get('commission_fee_status')}** · verified snapshot: **{realism.get('commission_fee_verified_as_of')}**")
+        if realism.get('commission_fee_source'):
+            st.caption(realism['commission_fee_source'])
+
     tabs=st.tabs(["Household sessions", "Individual accounts", "Costs", "Bottlenecks", "Forfeiture / transition value", "Trade routing", "Payout ledger", "Download"])
     with tabs[0]:
         st.markdown("**Accounting bridge:** trading P/L, payout deductions, external account purchases, and cash paid to Josh are separate events.")
@@ -233,5 +286,5 @@ def render_fleet_page():
             st.dataframe(run.payouts, use_container_width=True, hide_index=True)
     with tabs[7]:
         blob=build_fleet_bundle(run)
-        st.download_button("Download complete StarBase v5C analysis ZIP", blob, "StarBase_v5C_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
-        st.caption("Includes household/session ledger, account inventory, trade routing, payout ledger, COST_LEDGER, BOTTLENECK_SUMMARY and forfeiture/transition-value ledger for deeper ChatGPT analysis.")
+        st.download_button("Download complete StarBase v5D analysis ZIP", blob, "StarBase_v5D_Josh_economics_bundle.zip", "application/zip", use_container_width=True)
+        st.caption("Includes household/session ledger, account inventory, trade routing, payout/cost/bottleneck/forfeiture ledgers, FEE_SNAPSHOT, RULE_SNAPSHOT and a compact REALISM_REPORT in JSON + Markdown for deeper ChatGPT analysis.")

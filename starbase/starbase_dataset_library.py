@@ -199,6 +199,7 @@ def save_dataset(
     notes: str = "",
     point_value_per_contract: float = 20.0,
     chart_interval_override: Optional[str] = None,
+    instrument_root: str = "NQ",
 ) -> dict:
     if not sources:
         raise ValueError("At least one TradingView CSV source is required.")
@@ -229,6 +230,7 @@ def save_dataset(
             "display_name": display_name,
             "strategy_id": strategy_id,
             "profile_id": profile_id,
+            "instrument_root": str(instrument_root or "NQ").upper(),
             "source_hashes": [r["sha256"] for r in file_records],
         },
         sort_keys=True,
@@ -261,6 +263,8 @@ def save_dataset(
         "display_name": display_name.strip() or suggested_dataset_name(strategy_id, chart_interval, y0, y1),
         "strategy_id": strategy_id.strip() or "Strategy_01",
         "profile_id": profile_id.strip() or "1NQ",
+        "instrument_root": str(instrument_root or "NQ").upper(),
+        "point_value_per_contract": float(point_value_per_contract),
         "notes": notes,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "chart_interval": chart_interval,

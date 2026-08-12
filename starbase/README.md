@@ -67,7 +67,7 @@ The controlling fleet/optimizer design requirements are now preserved in `STARBA
 
 ---
 
-## Current cumulative StarBase release: v5C
+## Current cumulative StarBase release: v5D
 
 v5C repairs a deployed workspace-routing defect that could send **Josh Fleet Economics + Inventory** into the Legacy Simulator. Workspace routing now uses stable exact keys rather than brittle label-prefix checks.
 
@@ -78,3 +78,13 @@ The six known Sydney files infer as **10s** with about **95% detector agreement*
 Because Streamlit Community Cloud runtime storage is not guaranteed to persist across redeploys/restarts, the library includes a portable **StarBase Dataset Vault ZIP**. One vault restores all saved raw CSVs, names, notes, hashes and metadata.
 
 Core deployment-certified progress remains **24 / 60** until the Step-24 economics smoke test runs successfully on the repaired Josh page. See `STARBASE_MASTER_ROADMAP.md` and `STARBASE_V05C_VALIDATION_REPORT.md`.
+
+
+### v5D — Instrument-specific fee provenance + realism report
+
+- Step 24 is now verified from the user's strict v5C economics bundle. Official progress is **25/60** before v5D certification.
+- Trading fees resolve by firm + platform/connection when relevant + instrument (NQ/MNQ/ES/MES) rather than one global fixed fee.
+- Saved strategy datasets carry explicit instrument identity and point value.
+- Unknown fee combinations never borrow another firm's rate; StarBase requires a manual verified override.
+- Every Josh fleet download now includes `FEE_SNAPSHOT.json`, `REALISM_REPORT.json`, and `REALISM_REPORT.md`.
+- The UI keeps realism caveats compact inside an expander while preserving them in the downloadable analysis bundle.

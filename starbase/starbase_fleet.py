@@ -20,6 +20,7 @@ from dataclasses import dataclass, asdict
 from io import BytesIO
 import json
 import math
+from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 import zipfile
 
@@ -49,8 +50,8 @@ from starbase_lifecycle import (
     _PAYOUT_ENGINE_SUPPORT,
 )
 
-FLEET_ENGINE_VERSION = "5.0B"
-FLEET_SCHEMA_VERSION = "5B.0.0"
+FLEET_ENGINE_VERSION = "5.0D"
+FLEET_SCHEMA_VERSION = "5D.0.0"
 
 
 @dataclass(frozen=True)
@@ -61,6 +62,13 @@ class FleetConfig:
     fixed_accounts: int = 10
     max_trades_per_account_per_session: int = 1
     commission_per_contract_round_trip: float = 0.0
+    instrument: str = "NQ"
+    commission_platform_variant: str = "default"
+    commission_fee_status: str = "UNRESOLVED"
+    commission_fee_source: str = ""
+    commission_fee_effective_date: Optional[str] = None
+    commission_fee_verified_as_of: str = ""
+    commission_resolution: str = "UNRESOLVED"
     include_review_rows: bool = False
     intraday_order_assumption: str = "MFE_BEFORE_MAE_CONSERVATIVE"
     payout_request_mode: str = "MAX_ALLOWED"
@@ -935,6 +943,14 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
         "economics_status": "MODELED_EXTERNAL_COST_BASIS" if cost_policy.cost_basis_known else "UNKNOWN_FUNDED_ACQUISITION_COST_NOT_YET_MODELED",
         "rule_coverage": coverage.get("status"),
         "payout_engine_support": _PAYOUT_ENGINE_SUPPORT.get(cfg.product_id, "NOT_MODELED"),
+        "instrument": cfg.instrument,
+        "commission_round_trip_per_contract": float(cfg.commission_per_contract_round_trip),
+        "commission_platform_variant": cfg.commission_platform_variant,
+        "commission_fee_status": cfg.commission_fee_status,
+        "commission_fee_source": cfg.commission_fee_source,
+        "commission_fee_effective_date": cfg.commission_fee_effective_date,
+        "commission_fee_verified_as_of": cfg.commission_fee_verified_as_of,
+        "commission_resolution": cfg.commission_resolution,
         "raw_strategy_baseline": {k: v for k, v in baseline.items() if k != "sessions"},
         "source_hashes": source_hashes,
     }
@@ -952,12 +968,74 @@ def run_single_product_fleet(rulebook: Dict[str, Any], ledger: pd.DataFrame, cfg
         rule_snapshot=rule_snapshot,
     )
 
+def build_realism_report(run: FleetRun) -> dict:
+    s = run.summary
+    issues = []
+    def add(code, severity, title, detail):
+        issues.append({"code": code, "severity": severity, "title": title, "detail": detail})
+    if s.get("data_mode") != "STRICT_CERTIFICATION":
+        add("REVIEW_TRADES_INCLUDED", "HIGH", "Review trades included", "Quarantined REVIEW trades were included, so this run is not directly comparable with the strict certification baseline.")
+    if s.get("capacity_mode") == "FORCE_100_CAPTURE":
+        add("UNLIMITED_ACCOUNT_CAPACITY", "HIGH", "Unlimited capacity override", "Force-100% provisions as many funded account slots as needed and intentionally ignores real firm/household account-count limits.")
+    elif s.get("capacity_mode") == "MAINTAIN_FIXED_ACTIVE":
+        add("INSTANT_REPLACEMENTS", "HIGH", "Instant funded replacements", "Maintain-N replaces closed funded accounts immediately. Evaluation manufacturing delays, purchase limits and passed-account inventory are not yet enforced.")
+    if s.get("acquisition_cost_mode") == "MANUAL_EFFECTIVE_FUNDED_COST":
+        add("MANUAL_ACQUISITION_COST", "MEDIUM", "Manual funded-account acquisition cost", "The effective cost per funded account is a research assumption, not yet an account-by-account evaluation/reset/activation manufacturing history.")
+    elif not s.get("cost_basis_known"):
+        add("UNKNOWN_ACQUISITION_COST", "HIGH", "Unknown funded-account acquisition cost", "Final business net cannot be certified because the original cost of the funded inventory is unknown.")
+    fee_status = str(s.get("commission_fee_status") or "UNRESOLVED")
+    if fee_status not in {"VERIFIED_OFFICIAL"}:
+        sev = "MEDIUM" if fee_status == "USER_VERIFIED_OVERRIDE" else "HIGH"
+        add("COMMISSION_FEE_NOT_FULLY_VERIFIED", sev, "Commission schedule is not fully auto-verified", f"Fee status is {fee_status}. Review the saved fee source/override before treating the result as production-grade.")
+    if str(s.get("rule_coverage")) != "VERIFIED":
+        add("RULE_COVERAGE_INCOMPLETE", "HIGH", "Rule coverage incomplete", f"Rule coverage status is {s.get('rule_coverage')}. Some load-bearing product rules may be partial or unmodeled.")
+    verified_as_of = run.rule_snapshot.get("verified_as_of")
+    try:
+        age_days = (date.today() - date.fromisoformat(str(verified_as_of))).days
+    except Exception:
+        age_days = None
+    if age_days is None:
+        add("RULE_FRESHNESS_UNKNOWN", "HIGH", "Rule verification date unavailable", "StarBase cannot determine how fresh the rule snapshot is. Re-verify official sources before production use.")
+    elif age_days > 30:
+        add("RULE_SNAPSHOT_STALE", "HIGH", "Rule snapshot is stale", f"The selected rule snapshot was verified {age_days} days ago. Prop rules can change; re-verification is required before production use.")
+    elif age_days > 14:
+        add("RULE_SNAPSHOT_AGING", "MEDIUM", "Rule snapshot is aging", f"The selected rule snapshot was verified {age_days} days ago. Consider re-checking official firm sources before acting on the result.")
+    if str(s.get("payout_engine_support")) != "VERIFIED_CORE":
+        add("PAYOUT_ENGINE_INCOMPLETE", "HIGH", "Payout engine incomplete", f"Payout engine support is {s.get('payout_engine_support')}.")
+    if float(s.get("unresolved_live_transition_value") or 0.0) > 0:
+        add("LIVE_TRANSITION_UNMODELED", "HIGH", "Live-transition value unresolved", "The run reaches simulated-funded payout-cycle/live-transition boundaries. Full forced-live closures, erased balances and live-account economics are not yet modeled.")
+    add("FUNDED_ONLY_RESEARCH", "MEDIUM", "Funded-only starting assumption", "This fleet starts with/provisions funded inventory directly. It does not yet manufacture each funded account through its real evaluation/pass/activation path.")
+    if s.get("estimated_realistically_recoverable_future_payout_cash") is None:
+        add("FUTURE_PAYOUT_RECOVERY_UNMODELED", "MEDIUM", "Future payout recovery not estimated", "Accrued-but-blocked payout capacity is shown, but survival probability and recoverable cash before failure/live transition are intentionally not guessed yet.")
+    high = sum(i["severity"] == "HIGH" for i in issues)
+    medium = sum(i["severity"] == "MEDIUM" for i in issues)
+    grade = "RESEARCH_ONLY" if high else ("RESEARCH_GRADE" if medium else "PRODUCTION_GRADE")
+    return {
+        "overall_grade": grade,
+        "high_severity_count": high,
+        "medium_severity_count": medium,
+        "issues": issues,
+        "rulebook_verified_as_of": run.rule_snapshot.get("verified_as_of"),
+        "commission_fee_verified_as_of": s.get("commission_fee_verified_as_of"),
+        "commission_fee_source": s.get("commission_fee_source"),
+        "commission_fee_status": s.get("commission_fee_status"),
+    }
+
+
 def build_fleet_bundle(run: FleetRun) -> bytes:
     buf = BytesIO()
     with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as z:
         z.writestr("HOUSEHOLD_SUMMARY.json", json.dumps(run.summary, indent=2, default=str))
         z.writestr("CONFIG.json", json.dumps(run.config, indent=2, default=str))
         z.writestr("RULE_SNAPSHOT.json", json.dumps(run.rule_snapshot, indent=2, default=str))
+        fee_snapshot = {k: run.summary.get(k) for k in ["instrument","commission_round_trip_per_contract","commission_platform_variant","commission_fee_status","commission_fee_source","commission_fee_effective_date","commission_fee_verified_as_of","commission_resolution"]}
+        z.writestr("FEE_SNAPSHOT.json", json.dumps(fee_snapshot, indent=2, default=str))
+        realism = build_realism_report(run)
+        z.writestr("REALISM_REPORT.json", json.dumps(realism, indent=2, default=str))
+        realism_md = ["# StarBase Realism / Trust Report", "", f"Overall grade: **{realism['overall_grade']}**", ""]
+        for item in realism["issues"]:
+            realism_md += [f"## [{item['severity']}] {item['title']}", item['detail'], ""]
+        z.writestr("REALISM_REPORT.md", "\n".join(realism_md))
         z.writestr("HOUSEHOLD_SESSION_LEDGER.csv", run.household_sessions.to_csv(index=False))
         z.writestr("ACCOUNT_INVENTORY.csv", run.accounts.to_csv(index=False))
         z.writestr("TRADE_ROUTING.csv", run.trades.to_csv(index=False))
@@ -966,11 +1044,13 @@ def build_fleet_bundle(run: FleetRun) -> bytes:
         z.writestr("BOTTLENECK_SUMMARY.csv", run.bottlenecks.to_csv(index=False))
         z.writestr("FORFEITURE_AND_TRANSITION_VALUE_LEDGER.csv", run.forfeitures.to_csv(index=False))
         lines = [
-            "# Project StarBase v5B — Josh Fleet Economics + Inventory", "",
+            "# Project StarBase v5D — Josh Fleet Economics + Fee Provenance", "",
             f"Run ID: **{run.summary.get('run_id')}**",
             f"Data mode: **{run.summary.get('data_mode')}**",
             f"Product: **{run.summary.get('firm')} / {run.summary.get('product')} / ${run.summary.get('account_size'):,}**",
             f"Capacity mode: **{run.summary.get('capacity_mode')}**",
+            f"Instrument: **{run.summary.get('instrument')}**",
+            f"Commission: **${run.summary.get('commission_round_trip_per_contract',0):,.2f} RT / contract** ({run.summary.get('commission_fee_status')})",
             f"Signals routed: **{run.summary.get('signals_routed'):,} / {run.summary.get('source_eligible_trades'):,}**",
             f"Signal capture: **{run.summary.get('signal_capture_percent',0):.2f}%**",
             f"Accounts provisioned: **{run.summary.get('accounts_provisioned'):,}**",

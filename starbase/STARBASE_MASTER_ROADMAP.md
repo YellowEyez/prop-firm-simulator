@@ -3,14 +3,16 @@
 This is the controlling 60-step build checklist. Step numbers do not change casually.
 Each release must report: code-verified steps, deployed-certified steps, newly implemented steps, and next sequential target.
 
-## Current status at v5C
+## Current status at v5D
 
-- Deployment-certified from user-returned ledgers: **24 / 60**.
-- Verified steps are 1-18, 21-22, and 33-36.
-- Implemented/code-regression-ready but not yet deployment-certified: **19, 20, 23, 24**.
-- v5B implemented **Step 24 — Exact fee and account-cost engine**, but the deployed Josh workspace routing defect prevented a trustworthy UI certification. v5C repairs that route. After the user's strict Sydney v5C economics certification passes, deployed-certified progress becomes **25 / 60**.
-- v5B/v5C also contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
-- Important: implementation is not the same as full business-profit certification. Steps 25-32 remain required before multi-firm household profit claims.
+- Deployment-certified from the user's strict v5C economics bundle: **25 / 60**.
+- Verified steps are 1-18, 21-22, 24, and 33-36.
+- Implemented/code-regression-ready but not yet deployment-certified: **19, 20, 23, 25**.
+- v5D implements **Step 25 — Instrument-specific trading fees** with firm/platform/instrument fee provenance, dataset instrument identity, explicit unresolved/manual override handling, and downloadable fee snapshots.
+- v5D also adds a compact downloadable **Realism / Trust Report**. This is supporting infrastructure, not a new numbered step.
+- Step 26 remains the next sequential target: re-verify and complete load-bearing rule semantics for each supported product/stage, with freshness warnings and official-source provenance.
+- v5B-v5D contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
+- Important: implementation is not the same as full business-profit certification. Steps 26-32 remain required before multi-firm household profit claims.
 
 
 ### Supporting infrastructure milestones (do not renumber the 60 core steps)
@@ -47,8 +49,8 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 - [ ] 23 Cross-account comparison lab *(implemented; deployment certification still pending)*
 
 ## Phase 4 — Exact Economics + Single-Account Certification
-- [ ] 24 Exact fee and account-cost engine *(v5B implemented/code-verified; deployment certification pending)*
-- [ ] 25 Instrument-specific trading fees
+- [x] 24 Exact fee and account-cost engine *(deployment-certified from the user-returned strict v5C bundle)*
+- [ ] 25 Instrument-specific trading fees *(v5D implemented/code-verified; deployment certification pending)*
 - [ ] 26 Complete rule semantics for every supported product
 - [ ] 27 Golden single-account verification suite for each core product
 
@@ -99,4 +101,4 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C fixes the deployed routing needed to certify it and adds the non-numbered dataset-library infrastructure. After Step 24 deployment certification, the next sequential targets are **25 instrument-specific trading fees, 26 complete rule semantics, and 27 golden single-account verification**.
+A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C certified Step 24 and fixed the workspace/data-library flow. v5D implements **Step 25 instrument-specific trading fees**. After Step 25 deployment certification, the next sequential targets are **26 complete rule semantics** and **27 golden single-account verification**.

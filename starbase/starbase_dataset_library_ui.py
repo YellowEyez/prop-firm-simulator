@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 from tradingview_audit import AuditPolicy, audit_tradingview_files
+from starbase_fees import infer_instrument_from_profile, instrument_spec
 from starbase_dataset_library import (
     delete_dataset,
     export_dataset_vault,
@@ -18,7 +19,7 @@ from starbase_dataset_library import (
 
 
 def _dataset_label(d: dict) -> str:
-    return f"{d.get('display_name','Unnamed')}  |  {d.get('profile_id','?')}  |  {d.get('audit_summary',{}).get('strict_valid_trades',0):,} strict trades"
+    return f"{d.get('display_name','Unnamed')}  |  {d.get('instrument_root','?')} · {d.get('profile_id','?')}  |  {d.get('audit_summary',{}).get('strict_valid_trades',0):,} strict trades"
 
 
 def render_dataset_library_page() -> None:
@@ -45,7 +46,7 @@ def render_dataset_library_page() -> None:
             c5.metric("Chart interval", d.get("chart_interval") or "Unknown")
             yr = str(d.get("start_year") or "?") if d.get("start_year") == d.get("end_year") else f"{d.get('start_year','?')}-{d.get('end_year','?')}"
             c6.metric("Years", yr)
-            st.markdown(f"**Strategy ID:** `{d.get('strategy_id')}`  \n**Profile:** `{d.get('profile_id')}`  \n**Dataset ID:** `{d.get('dataset_id')}`")
+            st.markdown(f"**Strategy ID:** `{d.get('strategy_id')}`  \n**Instrument:** `{d.get('instrument_root','Unknown')}`  \n**Profile:** `{d.get('profile_id')}`  \n**Dataset ID:** `{d.get('dataset_id')}`")
             conf = float(d.get("chart_interval_detection_confidence") or 0)
             detected = d.get("chart_interval_detected", "Unknown")
             if d.get("chart_interval") != detected:
@@ -75,7 +76,11 @@ def render_dataset_library_page() -> None:
         m1,m2,m3 = st.columns(3)
         strategy_id = m1.text_input("Strategy ID", value="Sydney", key="v5c_add_strategy")
         profile_id = m2.text_input("Exact profile ID", value="1NQ", key="v5c_add_profile")
-        point_value = float(m3.number_input("Point value / contract ($)", min_value=0.01, value=20.0, step=0.25, key="v5c_add_point"))
+        inferred = infer_instrument_from_profile(profile_id) or "NQ"
+        instrument = m3.selectbox("Futures instrument", ["NQ","MNQ","ES","MES","OTHER"], index=["NQ","MNQ","ES","MES","OTHER"].index(inferred if inferred in {"NQ","MNQ","ES","MES"} else "OTHER"), key="v5d_add_instrument")
+        spec = instrument_spec(instrument) if instrument != "OTHER" else {}
+        default_point = float(spec.get("point_value", 20.0))
+        point_value = float(st.number_input("Point value / contract ($)", min_value=0.01, value=default_point, step=0.25, key=f"v5d_add_point_{instrument}", help="Auto-filled from the selected futures contract. Change only if you are deliberately using another contract specification."))
         if files:
             try:
                 audit = audit_tradingview_files(files, strategy_id=strategy_id, profile_id=profile_id, policy=AuditPolicy(point_value_per_contract=point_value))
@@ -93,7 +98,7 @@ def render_dataset_library_page() -> None:
                 chart_interval = st.text_input("Chart interval label", value=interval.label, key="v5c_add_interval", help="You may override this if you know the true chart timeframe.")
                 notes = st.text_area("Strategy notes", value="", height=130, key="v5c_add_notes", placeholder="Example: Sydney baseline; exact 1NQ profile; TP/SL notes; intended role; known experiments...")
                 if st.button("💾 Save strategy dataset to StarBase library", type="primary", use_container_width=True, key="v5c_save"):
-                    saved = save_dataset(files, display_name=display_name, strategy_id=strategy_id, profile_id=profile_id, notes=notes, point_value_per_contract=point_value, chart_interval_override=chart_interval)
+                    saved = save_dataset(files, display_name=display_name, strategy_id=strategy_id, profile_id=profile_id, notes=notes, point_value_per_contract=point_value, chart_interval_override=chart_interval, instrument_root=instrument)
                     st.success(f"Saved **{saved['display_name']}**. It can now be selected from Josh Fleet Economics without re-uploading these CSVs.")
                     st.rerun()
             except Exception as exc:
@@ -135,7 +140,7 @@ def select_dataset_or_upload(*, key_prefix: str, default_strategy: str = "Sydney
         selected_label = st.selectbox("Saved strategy dataset", labels, key=f"{key_prefix}_dataset")
         d = datasets[labels.index(selected_label)]
         files = load_dataset_sources(d["dataset_id"])
-        st.success(f"Using saved dataset **{d['display_name']}** · {d.get('chart_interval','Unknown')} · {d.get('start_year','?')}-{d.get('end_year','?')}")
+        st.success(f"Using saved dataset **{d['display_name']}** · **{d.get('instrument_root','Unknown')}** · {d.get('chart_interval','Unknown')} · {d.get('start_year','?')}-{d.get('end_year','?')}")
         if d.get("notes"):
             with st.expander("Saved strategy notes", expanded=False):
                 st.write(d["notes"])
