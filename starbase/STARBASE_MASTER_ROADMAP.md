@@ -3,13 +3,14 @@
 This is the controlling 60-step build checklist. Step numbers do not change casually.
 Each release must report: deployed-certified steps, newly implemented steps awaiting certification, and the next sequential target.
 
-## Current status at v5G
+## Current status at v5H
 
-- Deployment-certified by the user through v5F: **31 / 60**.
+- Deployment-certified by the user through v5G: **32 / 60**.
 - v5F deployment certification closed Steps **19, 20, 23 and 27** with **13 / 13 Golden fixtures PASS**.
-- Verified steps are **1-27 except no gaps**, plus the intentionally early fleet prototypes **33-36**. This yields 31 verified core steps total.
-- v5G implements **Step 28 — Live-account state model**. Step 28 is code/regression-ready but remains unchecked until the user runs the deployed Live State Verification Lab and gets 7/7 PASS.
-- The next sequential target after Step 28 certification is **Step 29 — Sim-funded -> live transition rules**.
+- v5G deployment certification closed **Step 28 — Live-account state model** with **7 / 7 Live State fixtures PASS**.
+- Verified steps are **1-28 with no gaps**, plus the intentionally early fleet prototypes **33-36**. This yields 32 verified core steps total.
+- v5H implements **Step 29 — Sim-funded -> live transition rules**. Step 29 is code/regression-ready but remains unchecked until the user runs the deployed Live Transition Verification Lab and gets 7/7 PASS.
+- The next sequential target after Step 29 certification is **Step 30 — Live payout/withdrawal engine**.
 - v5B-v5D contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
 - Important: Step 28 state support is not the same as live-transition/payout certification. Steps 29-32 remain required before live business-profit claims.
 
@@ -18,6 +19,7 @@ Each release must report: deployed-certified steps, newly implemented steps awai
 - [x] **D2 — Exact workspace routing map (v5C)**
 - [x] **D3 — Rule Truth / simulation-coverage separation (v5E)**
 - [x] **D4 — Versioned Live Profile Catalog + provenance (v5G)**: verified live-state profiles are stored separately from transition/payout orchestration; internally conflicting official text is preserved and blocked rather than guessed.
+- [x] **D5 — Versioned Live Transition Policy Catalog (v5H)**: deterministic thresholds, discretionary call-ups, closure scope, refund/vault/reserve rules, and transition-source provenance are stored separately from live withdrawal execution.
 
 ## Phase 1 — Trusted TradingView Input
 - [x] 1 Freeze original simulator baseline
@@ -55,8 +57,8 @@ Each release must report: deployed-certified steps, newly implemented steps awai
 - [x] 27 Golden single-account verification suite for core products
 
 ## Phase 5 — Full Live Account Logic
-- [ ] 28 Live-account state model *(v5G implemented; deployment certification pending 7/7 Live State Lab PASS)*
-- [ ] 29 Sim-funded -> live transition rules
+- [x] 28 Live-account state model
+- [ ] 29 Sim-funded -> live transition rules *(v5H implemented; deployment certification pending 7/7 Live Transition Lab PASS)*
 - [ ] 30 Live payout/withdrawal engine
 - [ ] 31 Live-transition forfeiture accounting
 - [ ] 32 FUNDED-A/B/C + LIVE-A/B/C states
@@ -101,4 +103,4 @@ Each release must report: deployed-certified steps, newly implemented steps awai
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it validates architecture, but StarBase must not skip unfinished lower-numbered trust/economics steps before making production-profit claims. v5F certified the full single-account trust block through Step 27. v5G starts the live trust block at Step 28 with a separate versioned Live Profile Catalog and Live State Lab. Transition timing, payout execution, erased/forfeited values, cooldown orchestration, and mature live-stage state classification remain Steps 29-32 and are not silently implied by a passing Step-28 state fixture.
+A later-numbered step can be prototyped early when it validates architecture, but StarBase must not skip unfinished lower-numbered trust/economics steps before making production-profit claims. v5F certified the full single-account trust block through Step 27. v5G certified the live-account state foundation at Step 28. v5H adds a separate versioned Live Transition Policy Catalog and event-driven transition engine for Step 29. Live payout execution, final erased/forfeited household accounting, cooldown orchestration, and mature live-stage state classification remain Steps 30-32 and are not silently implied by a passing Step-29 transition fixture.

@@ -20,3 +20,7 @@ def test_golden_workspace_routes_exactly():
 
 def test_live_state_workspace_routes_exactly():
     assert workspace_key("Live Account State Lab (v5G)") == "live_state"
+
+
+def test_live_transition_workspace_routes_exactly():
+    assert workspace_key("Live Transition Lab (v5H)") == "live_transition"

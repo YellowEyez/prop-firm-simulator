@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0.0",
+  "verified_as_of": "2026-08-13",
+  "notes": "Step 29 transition-policy catalog. A discretionary firm decision is never inferred from trade history. Step 30 executes live withdrawals; Step 31 promotes transition-value dispositions into the household forfeiture ledger.",
+  "policies": [
+    {
+      "policy_id": "lucid_standard_live",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "source_products": [
+        "lucid_flex",
+        "lucid_direct",
+        "lucid_daily"
+      ],
+      "transition_grade": "OFFICIAL_RULES_EVENT_DRIVEN",
+      "trigger_model": "DISCRETIONARY_REVIEW",
+      "review_eligibility": {
+        "final_plan_payout_reached": true,
+        "other_risk_team_conditions_possible": true,
+        "automatic_transition": false
+      },
+      "execution_requires_explicit_callup": true,
+      "closure_scope": "ALL_SIMULATED_PROP_ACCOUNTS",
+      "eligible_live_source_rule": "SIM_FUNDED_WITH_AT_LEAST_ONE_PAYOUT",
+      "ineligible_zero_payout_funded_rule": "CLOSE_AND_REFUND_ORIGINAL_EVALUATION_COST_IF_KNOWN",
+      "evaluation_account_rule": "CLOSE",
+      "sim_profit_carry": "NONE",
+      "sim_live_coexistence": "PROHIBITED_WHILE_LIVE",
+      "max_live_accounts": 5,
+      "live_profile_by_size": {
+        "25000": "lucid_live_25k",
+        "50000": "lucid_live_50k",
+        "100000": "lucid_live_100k",
+        "150000": "lucid_live_150k"
+      },
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure",
+        "https://support.lucidtrading.com/en/articles/12945796-lucidflex-payouts"
+      ]
+    },
+    {
+      "policy_id": "tradeify_elite",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "source_products": [
+        "tradeify_select_flex",
+        "tradeify_select_daily",
+        "tradeify_lightning"
+      ],
+      "transition_grade": "OFFICIAL_RULES_EVENT_DRIVEN",
+      "trigger_model": "ELIGIBILITY_THEN_DISCRETIONARY_SELECTION",
+      "review_eligibility": {
+        "single_account_payouts": 3,
+        "household_payouts_since_last_transition": 10,
+        "automatic_transition": false
+      },
+      "execution_requires_explicit_callup": true,
+      "selection_is_mandatory_once_called": true,
+      "closure_scope": "ALL_SIM_FUNDED_AND_EVALUATION_ACCOUNTS",
+      "eligible_live_source_rule": "SIM_FUNDED_WITH_AT_LEAST_ONE_PAYOUT",
+      "evaluation_account_rule": "CLOSE",
+      "sim_profit_carry": "NONE",
+      "sim_progress_after_last_payout_carry": "NONE",
+      "sim_live_coexistence": "PROHIBITED_BY_TRANSITION_CLOSURE",
+      "max_live_accounts": 5,
+      "live_profile_by_size": {
+        "25000": "tradeify_elite_25k",
+        "50000": "tradeify_elite_50k",
+        "100000": "tradeify_elite_100k",
+        "150000": "tradeify_elite_150k"
+      },
+      "base_reward_pool_by_size": {
+        "25000": 2000,
+        "50000": 4000,
+        "100000": 8000,
+        "150000": 12000
+      },
+      "source_urls": [
+        "https://help.tradeify.co/en/articles/12969284-tradeify-elite-program",
+        "https://help.tradeify.co/en/articles/14068315-tradeify-elite-accelerator-reward-pools",
+        "https://help.tradeify.co/en/articles/12853966-select-flex-and-select-daily-payout-policies"
+      ]
+    },
+    {
+      "policy_id": "mffu_flex_live",
+      "firm_id": "mffu",
+      "firm_name": "My Funded Futures",
+      "source_products": [
+        "mffu_flex_50k"
+      ],
+      "transition_grade": "OFFICIAL_RULES_MIXED_TRIGGER",
+      "trigger_model": "AUTOMATIC_THRESHOLD_OR_RISK_REVIEW",
+      "review_eligibility": {
+        "same_account_consecutive_approved_payouts": 5,
+        "household_total_sim_payout_cap": 100000,
+        "risk_team_review_possible": true
+      },
+      "execution_requires_explicit_callup": false,
+      "closure_scope": "TRANSITIONED_ACCOUNT_CLOSE_OTHER_SIM_SUSPENDED_WHILE_LIVE",
+      "eligible_live_source_rule": "TRIGGERING_SIM_FUNDED_ACCOUNT",
+      "sim_profit_carry": "UNRESOLVED",
+      "sim_live_coexistence": "TRADING_PROHIBITED_SIM_WHILE_LIVE",
+      "live_profile_by_size": {
+        "50000": "mffu_flex_live_50k"
+      },
+      "source_urls": [
+        "https://help.myfundedfutures.com/en/articles/15072271-flex-plan-50-000-a-comprehensive-guide"
+      ]
+    },
+    {
+      "policy_id": "apex_live_invitation",
+      "firm_id": "apex",
+      "firm_name": "Apex Trader Funding",
+      "source_products": [
+        "apex_eod",
+        "apex_intraday"
+      ],
+      "transition_grade": "OFFICIAL_RULES_EVENT_DRIVEN",
+      "trigger_model": "DISCRETIONARY_INVITATION",
+      "review_eligibility": {
+        "monitoring_example_single_pa_withdrawals": 3,
+        "other_risk_team_conditions_possible": true,
+        "automatic_transition": false
+      },
+      "execution_requires_explicit_callup": true,
+      "closure_scope": "ALL_EVALUATIONS_AND_PERFORMANCE_ACCOUNTS",
+      "evaluation_account_rule": "CLOSE_REFUND_ACTIVE_ONLY",
+      "performance_account_rule": "DEACTIVATE",
+      "positive_pa_profit_rule": "TRACK_IN_BONUS_VAULT",
+      "sim_live_coexistence": "PROHIBITED",
+      "initial_live_accounts": 1,
+      "max_live_accounts": 5,
+      "live_profile_id": "apex_live_uniform",
+      "decline_live_invitation": {
+        "sim_services_deactivated": true,
+        "final_reward": 3000,
+        "bonus_vault_forfeited": true,
+        "sim_balances_forfeited": true
+      },
+      "source_urls": [
+        "https://apextraderfunding.com/help-center/getting-started/apex-live-prop-trading-program-faq/"
+      ]
+    },
+    {
+      "policy_id": "topstep_lfa_callup",
+      "firm_id": "topstep",
+      "firm_name": "Topstep",
+      "source_products": [
+        "topstep_standard",
+        "topstep_consistency"
+      ],
+      "transition_grade": "OFFICIAL_RULES_EVENT_DRIVEN",
+      "trigger_model": "DISCRETIONARY_RISK_TEAM_CALLUP",
+      "execution_requires_explicit_callup": true,
+      "selection_is_mandatory_once_called": true,
+      "closure_scope": "ALL_XFA_CLOSE",
+      "eligible_size_accounts_rule": "ACTIVE_XFA_WITH_AT_LEAST_ONE_PAYOUT_ELSE_ALL_ACTIVE_XFA",
+      "live_size_rule": "AVERAGE_ELIGIBLE_XFA_SIZES_ROUND_UP_TO_50K_100K_150K",
+      "starting_capital_rule": "20_PERCENT_COMBINED_XFA_BALANCES_OR_MIN_10000_CAPPED_AT_LFA_SIZE",
+      "reserve_rule": "REMAINDER_OF_TRANSFERABLE_COMBINED_BALANCE",
+      "excess_above_lfa_size_rule": "FORFEITED",
+      "sim_live_coexistence": "XFA_CLOSE_ON_CALLUP",
+      "max_live_accounts": 1,
+      "source_urls": [
+        "https://help.topstep.com/en/articles/10657969-live-funded-account-parameters",
+        "https://help.topstep.com/en/articles/13747178-live-funded-account-call-up-and-call-down-process"
+      ],
+      "live_profile_by_size": {
+        "50000": "topstep_lfa_50k",
+        "100000": "topstep_lfa_100k",
+        "150000": "topstep_lfa_150k"
+      }
+    },
+    {
+      "policy_id": "fundednext_rapid_live",
+      "firm_id": "fundednext",
+      "firm_name": "FundedNext Futures",
+      "source_products": [
+        "fundednext_rapid"
+      ],
+      "transition_grade": "BLOCKED_CONFLICTING_LIVE_PROFILE",
+      "trigger_model": "UNRESOLVED",
+      "execution_requires_explicit_callup": true,
+      "live_profile_id": "fundednext_rapid_live_50k",
+      "unresolved_reasons": [
+        "The current live profile remains blocked because the official Rapid Live article contains conflicting lock-floor statements."
+      ],
+      "source_urls": [
+        "https://helpfutures.fundednext.com/en/articles/15900277-road-to-live-trading-rapid-challenge"
+      ]
+    }
+  ]
+}

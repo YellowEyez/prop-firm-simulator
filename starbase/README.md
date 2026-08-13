@@ -76,3 +76,7 @@ v5G implements **Step 28 — Live-account state model**. The new **Live Account 
 The Step-28 deployment certification is one button: **Run Live State Verification Suite**. A deployed **7 / 7 PASS** certifies Step 28 and moves the scoreboard to **32 / 60 verified**.
 
 See `STARBASE_MASTER_ROADMAP.md`, `STARBASE_V05G_CHANGELOG.md`, and `STARBASE_V05G_VALIDATION_REPORT.md`.
+
+## v5H - Live Transition Engine
+
+v5H implements **Step 29 - Sim-funded -> live transition rules** on top of the certified v5G live-account state foundation. The new **Live Transition Lab (v5H)** makes firm call-up/threshold events explicit, records which simulated accounts close or suspend, creates current-rule refunds/Bonus Vault/Reserve/reward-pool transition values, and instantiates the correct destination Live state. Discretionary risk-team selections are never inferred from trade history. Live withdrawals remain Step 30 and final transition-forfeiture household accounting remains Step 31.
