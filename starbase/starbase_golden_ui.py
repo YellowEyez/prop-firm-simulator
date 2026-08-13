@@ -59,6 +59,9 @@ Some funded products remain **engine-pending for advanced rules** such as contra
             st.caption(f"Verification scope: {result.get('confidence','—')}")
             checks = pd.DataFrame(result.get("checks") or [])
             if not checks.empty:
+                for col in ("expected", "actual"):
+                    if col in checks.columns:
+                        checks[col] = checks[col].map(lambda v: "True" if v is True else ("False" if v is False else v))
                 checks = checks.rename(columns={"field": "Exact field", "expected": "Hand-calculated expected", "actual": "StarBase actual", "pass": "Matches"})
                 st.dataframe(checks, use_container_width=True, hide_index=True)
             if result.get("confidence") != "FULL_CORE":

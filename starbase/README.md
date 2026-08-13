@@ -67,13 +67,12 @@ The controlling fleet/optimizer design requirements are now preserved in `STARBA
 
 ---
 
-## Current cumulative StarBase release: v5F
+## Current cumulative StarBase release: v5G
 
-StarBase v5F begins **Step 27 — Golden Single-Account Verification** after the user deployment-certified v5E Step 26. The official scoreboard entering v5F is **27 / 60 verified**.
+StarBase v5F was deployment-certified by the user with **13 / 13 Golden fixtures PASS**, closing Steps **19, 20, 23 and 27**. The official scoreboard entering v5G is therefore **31 / 60 verified**.
 
-The new **Golden Verification Lab (v5F)** runs 13 tiny hand-calculated account stories and compares expected vs actual values field-by-field. A deployed 13/13 PASS certifies Step 27 and also closes older deployment-verification gaps for Step 19 evaluation termination, Step 20 fresh-funded activation, and Step 23 cross-account comparison. If that smoke test passes, the scoreboard becomes **31 / 60 verified** and the next sequential target is Step 28 live-account state modeling.
+v5G implements **Step 28 — Live-account state model**. The new **Live Account State Lab (v5G)** introduces a separate versioned live-profile catalog and auditable live account state for balance convention, failure floor, drawdown family, Daily Loss Limit state, reserve/Bonus-Vault placeholders, current contract tier, and rule provenance. It deliberately stops before automatic sim-funded-to-live transitions, live withdrawal execution, live-transition forfeiture accounting, and mature FUNDED/LIVE state classification; those remain Steps **29-32**.
 
-The Rule Truth page also now displays schema **3.1.0** directly at the top and includes a plain-English terminology guide for DLL (Daily Loss Limit), MLL (Maximum Loss Limit), qualifying/benchmark days, qualifying dollars/day, trader split, and drawdown labels. Detailed fields such as maximum contracts, DLL, buffers and access periods remain under **Inspect one product/path — detailed rules live here**.
+The Step-28 deployment certification is one button: **Run Live State Verification Suite**. A deployed **7 / 7 PASS** certifies Step 28 and moves the scoreboard to **32 / 60 verified**.
 
-See `STARBASE_MASTER_ROADMAP.md`, `STARBASE_V05F_CHANGELOG.md`, and `STARBASE_V05F_VALIDATION_REPORT.md`.
-
+See `STARBASE_MASTER_ROADMAP.md`, `STARBASE_V05G_CHANGELOG.md`, and `STARBASE_V05G_VALIDATION_REPORT.md`.

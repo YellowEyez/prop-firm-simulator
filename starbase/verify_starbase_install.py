@@ -23,7 +23,7 @@ required_files = [
     "starbase_audit_ui.py", "starbase_rulebook.py", "starbase_rulebook_ui.py", "starbase_rule_semantics.py",
     "starbase_integrity.py", "starbase_integrity_ui.py", "starbase_rules_v3.json",
     "starbase_paths.py", "starbase_economics.py", "starbase_costs_v1.json", "starbase_fees.py", "starbase_fees_v1.json",
-    "starbase_fleet.py", "starbase_fleet_ui.py", "starbase_dataset_library.py", "starbase_dataset_library_ui.py", "starbase_golden.py", "starbase_golden_ui.py", "starbase_workspaces.py", "tooltips.py", "logo_dark.png", "logo_light.png",
+    "starbase_fleet.py", "starbase_fleet_ui.py", "starbase_dataset_library.py", "starbase_dataset_library_ui.py", "starbase_golden.py", "starbase_golden_ui.py", "starbase_live.py", "starbase_live_ui.py", "starbase_live_profiles_v1.json", "starbase_workspaces.py", "tooltips.py", "logo_dark.png", "logo_light.png",
 ]
 missing = [p for p in required_files if not (APP_DIR / p).exists()]
 if missing:
@@ -44,7 +44,7 @@ if not files_only:
     for name in (
         "simulation", "tradingview_audit", "starbase_audit_ui", "starbase_rulebook",
         "starbase_rulebook_ui", "starbase_rule_semantics", "starbase_integrity", "starbase_integrity_ui", "starbase_paths",
-        "starbase_economics", "starbase_fees", "starbase_fleet", "starbase_fleet_ui", "starbase_dataset_library", "starbase_dataset_library_ui", "starbase_golden", "starbase_golden_ui", "starbase_workspaces", "tooltips",
+        "starbase_economics", "starbase_fees", "starbase_fleet", "starbase_fleet_ui", "starbase_dataset_library", "starbase_dataset_library_ui", "starbase_golden", "starbase_golden_ui", "starbase_live", "starbase_live_ui", "starbase_workspaces", "tooltips",
     ):
         importlib.import_module(name)
         print(f"OK local module {name}")

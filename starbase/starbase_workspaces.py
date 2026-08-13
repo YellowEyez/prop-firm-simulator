@@ -6,6 +6,7 @@ WORKSPACES = [
     ("TradingView Import + Audit (v2)", "audit"),
     ("Prop-Firm Rule Truth (v5F)", "rulebook"),
     ("Golden Verification Lab (v5F)", "golden"),
+    ("Live Account State Lab (v5G)", "live_state"),
     ("Research Integrity + Provenance (v3.5)", "integrity"),
     ("Single-Account State + Ledger (v4A)", "account_state"),
     ("Historical Single-Account Trader (v4B)", "historical_runner"),

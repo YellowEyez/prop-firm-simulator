@@ -1,25 +1,23 @@
-# Project StarBase Master Build Roadmap v1.1
+# Project StarBase Master Build Roadmap v1.2
 
 This is the controlling 60-step build checklist. Step numbers do not change casually.
-Each release must report: code-verified steps, deployed-certified steps, newly implemented steps, and next sequential target.
+Each release must report: deployed-certified steps, newly implemented steps awaiting certification, and the next sequential target.
 
-## Current status at v5F
+## Current status at v5G
 
-- Deployment-certified by the user through v5E: **27 / 60**.
-- Verified steps are 1-18, 21-22, 24-26, and 33-36.
-- Implemented/code-regression-ready but not yet deployment-certified before v5F: **19, 20, 23**.
-- v5E **Step 26 — Complete Current Prop-Firm Rule Semantics / Rule Truth** is deployment-certified by the user.
-- v5F implements **Step 27 — Golden Single-Account Verification**, plus deployment-certification controls for Steps 19, 20 and 23. The v5F Golden Lab has 13 independent hand-calculated fixtures and does not use Sydney/Julie historical data.
-- If the user deploys v5F and the Golden Lab shows 13/13 PASS, Steps **19, 20, 23 and 27** are all certified at once and the verified total becomes **31 / 60**.
-- The next sequential target after that certification is **Step 28 — Live-account state model**.
+- Deployment-certified by the user through v5F: **31 / 60**.
+- v5F deployment certification closed Steps **19, 20, 23 and 27** with **13 / 13 Golden fixtures PASS**.
+- Verified steps are **1-27 except no gaps**, plus the intentionally early fleet prototypes **33-36**. This yields 31 verified core steps total.
+- v5G implements **Step 28 — Live-account state model**. Step 28 is code/regression-ready but remains unchecked until the user runs the deployed Live State Verification Lab and gets 7/7 PASS.
+- The next sequential target after Step 28 certification is **Step 29 — Sim-funded -> live transition rules**.
 - v5B-v5D contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
-- Important: implementation is not the same as full business-profit certification. Steps 26-32 remain required before multi-firm household profit claims.
-
+- Important: Step 28 state support is not the same as live-transition/payout certification. Steps 29-32 remain required before live business-profit claims.
 
 ### Supporting infrastructure milestones (do not renumber the 60 core steps)
-- [x] **D1 — Reusable Strategy Dataset Library + Dataset Vault (v5C)**: save named exact TradingView datasets with notes, source hashes, audit summary, year range and inferred/overridable chart interval; reuse them across simulation workspaces; delete old datasets; export/restore the whole library as one portable ZIP.
-- [x] **D2 — Exact workspace routing map (v5C)**: displayed workspace names map to stable routing keys so Josh Fleet Economics cannot silently fall through to Legacy again.
-- [x] **D3 — Rule Truth / simulation-coverage separation (v5E)**: official rule documentation, variant requirements, engine readiness, and ranking eligibility are separate fields so verified rules cannot masquerade as an implemented lifecycle engine.
+- [x] **D1 — Reusable Strategy Dataset Library + Dataset Vault (v5C)**
+- [x] **D2 — Exact workspace routing map (v5C)**
+- [x] **D3 — Rule Truth / simulation-coverage separation (v5E)**
+- [x] **D4 — Versioned Live Profile Catalog + provenance (v5G)**: verified live-state profiles are stored separately from transition/payout orchestration; internally conflicting official text is preserved and blocked rather than guessed.
 
 ## Phase 1 — Trusted TradingView Input
 - [x] 1 Freeze original simulator baseline
@@ -44,20 +42,20 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 - [x] 16 Explicit account-state object + accounting ledger
 - [x] 17 Chronological single-account trade routing
 - [x] 18 MAE-aware drawdown breach engine
-- [ ] 19 Evaluation PASS / FAIL / EXPIRE termination *(implemented; deployment certification still pending)*
-- [ ] 20 Correct fresh-funded activation *(implemented; deployment certification still pending)*
+- [x] 19 Evaluation PASS / FAIL / EXPIRE termination
+- [x] 20 Correct fresh-funded activation
 - [x] 21 Core funded payout engine
 - [x] 22 Separate payout cash vs account value
-- [ ] 23 Cross-account comparison lab *(implemented; deployment certification still pending)*
+- [x] 23 Cross-account comparison lab
 
 ## Phase 4 — Exact Economics + Single-Account Certification
-- [x] 24 Exact fee and account-cost engine *(deployment-certified from the user-returned strict v5C bundle)*
-- [x] 25 Instrument-specific trading fees *(v5D deployment-certified by user)*
-- [ ] 26 Complete rule semantics for every supported product *(v5E implemented/code-verified; deployment certification pending)*
-- [ ] 27 Golden single-account verification suite for each core product *(v5F implemented; deployment certification pending 13/13 Golden Lab PASS)*
+- [x] 24 Exact fee and account-cost engine
+- [x] 25 Instrument-specific trading fees
+- [x] 26 Complete rule semantics / Rule Truth for supported products
+- [x] 27 Golden single-account verification suite for core products
 
 ## Phase 5 — Full Live Account Logic
-- [ ] 28 Live-account state model
+- [ ] 28 Live-account state model *(v5G implemented; deployment certification pending 7/7 Live State Lab PASS)*
 - [ ] 29 Sim-funded -> live transition rules
 - [ ] 30 Live payout/withdrawal engine
 - [ ] 31 Live-transition forfeiture accounting
@@ -103,4 +101,4 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C certified Step 24 and fixed the workspace/data-library flow. v5D completed **Step 25 instrument-specific trading fees**. v5E completed and deployment-certified **Step 26 complete current rule semantics / Rule Truth**. v5F implements **Step 27 golden single-account verification** and uses that same deployment smoke test to close older Steps 19, 20 and 23. After a 13/13 deployed Golden Lab PASS, the next sequential target is **Step 28 live-account state model**.
+A later-numbered step can be prototyped early when it validates architecture, but StarBase must not skip unfinished lower-numbered trust/economics steps before making production-profit claims. v5F certified the full single-account trust block through Step 27. v5G starts the live trust block at Step 28 with a separate versioned Live Profile Catalog and Live State Lab. Transition timing, payout execution, erased/forfeited values, cooldown orchestration, and mature live-stage state classification remain Steps 29-32 and are not silently implied by a passing Step-28 state fixture.

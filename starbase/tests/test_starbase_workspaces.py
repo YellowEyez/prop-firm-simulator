@@ -16,3 +16,7 @@ def test_dataset_library_workspace_routes_correctly():
 def test_golden_workspace_routes_exactly():
     from starbase_workspaces import workspace_key
     assert workspace_key("Golden Verification Lab (v5F)") == "golden"
+
+
+def test_live_state_workspace_routes_exactly():
+    assert workspace_key("Live Account State Lab (v5G)") == "live_state"

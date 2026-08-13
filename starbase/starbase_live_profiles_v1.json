@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0.0",
+  "verified_as_of": "2026-08-13",
+  "notes": "Step 28 live-state profile catalog. Transition timing, live payouts, forfeitures, reserve release and cooldown orchestration are Steps 29-31 unless explicitly stated as state metadata.",
+  "profiles": [
+    {
+      "profile_id": "lucid_live_25k",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "display_name": "LucidLive 25K-source account",
+      "source_programs": ["LucidFlex", "LucidDirect", "LucidPro"],
+      "source_account_size": 25000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 1000,
+      "initial_failure_floor": -1000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 1100,
+      "dll": {"amount": null, "action": "NONE"},
+      "consistency_percent": null,
+      "max_live_accounts": 5,
+      "cooldown_days_after_breach": 14,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 2000, "max_minis": 1, "max_micros": 10},
+        {"min_balance": 2000, "max_balance_exclusive": null, "max_minis": 2, "max_micros": 20}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 90},
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure",
+        "https://support.lucidtrading.com/en/articles/15245873-new-live-scaling-plan"
+      ]
+    },
+    {
+      "profile_id": "lucid_live_50k",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "display_name": "LucidLive 50K-source account",
+      "source_programs": ["LucidFlex", "LucidDirect", "LucidPro"],
+      "source_account_size": 50000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 2000,
+      "initial_failure_floor": -2000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 2100,
+      "dll": {"amount": null, "action": "NONE"},
+      "consistency_percent": null,
+      "max_live_accounts": 5,
+      "cooldown_days_after_breach": 14,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 2000, "max_minis": 2, "max_micros": 20},
+        {"min_balance": 2000, "max_balance_exclusive": 4000, "max_minis": 3, "max_micros": 30},
+        {"min_balance": 4000, "max_balance_exclusive": null, "max_minis": 4, "max_micros": 40}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 90},
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure",
+        "https://support.lucidtrading.com/en/articles/15245873-new-live-scaling-plan"
+      ]
+    },
+    {
+      "profile_id": "lucid_live_100k",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "display_name": "LucidLive 100K-source account",
+      "source_programs": ["LucidFlex", "LucidDirect", "LucidPro"],
+      "source_account_size": 100000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 3000,
+      "initial_failure_floor": -3000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 3100,
+      "dll": {"amount": null, "action": "NONE"},
+      "consistency_percent": null,
+      "max_live_accounts": 5,
+      "cooldown_days_after_breach": 14,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 2000, "max_minis": 3, "max_micros": 30},
+        {"min_balance": 2000, "max_balance_exclusive": 4000, "max_minis": 4, "max_micros": 40},
+        {"min_balance": 4000, "max_balance_exclusive": 6000, "max_minis": 5, "max_micros": 50},
+        {"min_balance": 6000, "max_balance_exclusive": null, "max_minis": 6, "max_micros": 60}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 90},
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure",
+        "https://support.lucidtrading.com/en/articles/15245873-new-live-scaling-plan"
+      ]
+    },
+    {
+      "profile_id": "lucid_live_150k",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "display_name": "LucidLive 150K-source account",
+      "source_programs": ["LucidFlex", "LucidDirect", "LucidPro"],
+      "source_account_size": 150000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 4500,
+      "initial_failure_floor": -4500,
+      "lock_floor": 100,
+      "lock_trigger_balance": 4600,
+      "dll": {"amount": null, "action": "NONE"},
+      "consistency_percent": null,
+      "max_live_accounts": 5,
+      "cooldown_days_after_breach": 14,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 2000, "max_minis": 4, "max_micros": 40},
+        {"min_balance": 2000, "max_balance_exclusive": 4000, "max_minis": 5, "max_micros": 50},
+        {"min_balance": 4000, "max_balance_exclusive": 6000, "max_minis": 6, "max_micros": 60},
+        {"min_balance": 6000, "max_balance_exclusive": 9000, "max_minis": 8, "max_micros": 80},
+        {"min_balance": 9000, "max_balance_exclusive": null, "max_minis": 10, "max_micros": 100}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 90},
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure",
+        "https://support.lucidtrading.com/en/articles/15245873-new-live-scaling-plan"
+      ]
+    },
+    {
+      "profile_id": "tradeify_elite_25k",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "display_name": "Tradeify Elite Live 25K",
+      "source_programs": ["Select Flex", "Select Daily", "Growth", "Lightning"],
+      "source_account_size": 25000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 1500,
+      "initial_failure_floor": -1500,
+      "lock_floor": 100,
+      "lock_trigger_balance": 1600,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 1600, "max_minis": 1, "max_micros": 10},
+        {"min_balance": 1600, "max_balance_exclusive": null, "max_minis": 2, "max_micros": 20}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 80},
+      "source_urls": ["https://help.tradeify.co/en/articles/12969284-tradeify-elite-program"]
+    },
+    {
+      "profile_id": "tradeify_elite_50k",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "display_name": "Tradeify Elite Live 50K",
+      "source_programs": ["Select Flex", "Select Daily", "Growth", "Lightning"],
+      "source_account_size": 50000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 2000,
+      "initial_failure_floor": -2000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 2100,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 2100, "max_minis": 2, "max_micros": 20},
+        {"min_balance": 2100, "max_balance_exclusive": null, "max_minis": 4, "max_micros": 40}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 80},
+      "source_urls": ["https://help.tradeify.co/en/articles/12969284-tradeify-elite-program"]
+    },
+    {
+      "profile_id": "tradeify_elite_100k",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "display_name": "Tradeify Elite Live 100K",
+      "source_programs": ["Select Flex", "Select Daily", "Growth", "Lightning"],
+      "source_account_size": 100000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 3000,
+      "initial_failure_floor": -3000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 3100,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 3100, "max_minis": 4, "max_micros": 40},
+        {"min_balance": 3100, "max_balance_exclusive": null, "max_minis": 8, "max_micros": 80}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 80},
+      "source_urls": ["https://help.tradeify.co/en/articles/12969284-tradeify-elite-program"]
+    },
+    {
+      "profile_id": "tradeify_elite_150k",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "display_name": "Tradeify Elite Live 150K",
+      "source_programs": ["Select Flex", "Select Daily", "Growth", "Lightning"],
+      "source_account_size": 150000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 4500,
+      "initial_failure_floor": -4500,
+      "lock_floor": 100,
+      "lock_trigger_balance": 4600,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 4600, "max_minis": 6, "max_micros": 40},
+        {"min_balance": 4600, "max_balance_exclusive": null, "max_minis": 12, "max_micros": 120}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 80},
+      "source_urls": ["https://help.tradeify.co/en/articles/12969284-tradeify-elite-program"]
+    },
+    {
+      "profile_id": "mffu_flex_live_50k",
+      "firm_id": "mffu",
+      "firm_name": "My Funded Futures",
+      "display_name": "MFFU Flex Live 50K",
+      "source_programs": ["Flex 50K"],
+      "source_account_size": 50000,
+      "state_grade": "STATE_VERIFIED",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 2000,
+      "drawdown_type": "EOD_MINIMUM_BALANCE",
+      "starting_drawdown": 1844,
+      "initial_failure_floor": 156,
+      "lock_floor": 156,
+      "lock_trigger_balance": null,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": null,
+      "contract_tiers_cme": [
+        {"min_balance": 156, "max_balance_exclusive": null, "max_minis": 3, "max_micros": 30}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 80, "minimum_payout": 250},
+      "cooldown_days_after_breach": 21,
+      "source_urls": ["https://help.myfundedfutures.com/en/articles/15072271-flex-plan-50-000-a-comprehensive-guide"]
+    },
+    {
+      "profile_id": "apex_live_uniform",
+      "firm_id": "apex",
+      "firm_name": "Apex Trader Funding",
+      "display_name": "Apex Live Prop Trading — Uniform Live Account",
+      "source_programs": ["Apex Sim PA programs"],
+      "source_account_size": null,
+      "state_grade": "STATE_VERIFIED_CORE",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 0,
+      "drawdown_type": "EOD_TRAILING",
+      "starting_drawdown": 3000,
+      "initial_failure_floor": -3000,
+      "lock_floor": 100,
+      "lock_trigger_balance": 3100,
+      "dll": {"amount": null, "action": "NONE_AT_LEVEL_1"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 10000, "max_minis": 10, "max_micros": 100, "dll": null, "level": 1},
+        {"min_balance": 10000, "max_balance_exclusive": 25000, "max_minis": 25, "max_micros": 250, "dll": 5000, "level": 2},
+        {"min_balance": 25000, "max_balance_exclusive": 50000, "max_minis": 30, "max_micros": 300, "dll": 10000, "level": 3},
+        {"min_balance": 50000, "max_balance_exclusive": null, "max_minis": 30, "max_micros": 300, "dll": 10000, "level": 4, "note": "Custom review may modify Level 4 limits; default state holds Level 3 limits until review."}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "profit_split_percent": 90, "minimum_payout": 500, "safety_net_balance": 3100},
+      "bonus_vault_supported": true,
+      "source_urls": ["https://apextraderfunding.com/help-center/getting-started/apex-live-prop-trading-program-faq/"]
+    },
+    {
+      "profile_id": "topstep_lfa_50k",
+      "firm_id": "topstep",
+      "firm_name": "Topstep",
+      "display_name": "Topstep Live Funded Account 50K Tier",
+      "source_programs": ["Express Funded Account Standard", "Express Funded Account Consistency"],
+      "source_account_size": 50000,
+      "state_grade": "STATE_VERIFIED_TRANSITION_INPUT_REQUIRED",
+      "starting_balance_mode": "TRANSITION_DERIVED_MIN_10000",
+      "starting_balance": null,
+      "minimum_starting_balance": 10000,
+      "reserve_mode": "TRANSITION_DERIVED",
+      "drawdown_type": "LIVE_MINIMUM_BALANCE_PLUS_DLL",
+      "starting_drawdown": null,
+      "initial_failure_floor": 1000,
+      "lock_floor": 1000,
+      "dll": {"amount": 2000, "action": "SESSION_LIQUIDATE_AND_PAUSE"},
+      "max_live_accounts": 1,
+      "contract_tiers_cme": [
+        {"min_balance": 0, "max_balance_exclusive": 5000, "max_minis": 3, "max_micros": 30, "dll": 1000},
+        {"min_balance": 5000, "max_balance_exclusive": 10000.000001, "max_minis": 5, "max_micros": 50, "dll": 2000},
+        {"min_balance": 10000.000001, "max_balance_exclusive": null, "max_minis": 5, "max_micros": 50, "dll": 2000}
+      ],
+      "payout_state_metadata": {"profit_split_percent": 90, "minimum_payout": 125, "pre_30_winning_days": "5 days of $150 then up to 50% balance", "post_30_winning_days": "daily payouts"},
+      "source_urls": [
+        "https://help.topstep.com/en/articles/10657969-live-funded-account-parameters",
+        "https://help.topstep.com/en/articles/8284233-topstep-payout-policy"
+      ]
+    },
+    {
+      "profile_id": "fundednext_rapid_live_50k",
+      "firm_id": "fundednext",
+      "firm_name": "FundedNext Futures",
+      "display_name": "FundedNext Rapid Live 50K",
+      "source_programs": ["Rapid Challenge new live structure"],
+      "source_account_size": 50000,
+      "state_grade": "CONFLICTING_OFFICIAL_TEXT",
+      "starting_balance_mode": "FIXED",
+      "starting_balance": 2000,
+      "drawdown_type": "TRAILING_MLL",
+      "starting_drawdown": 2000,
+      "initial_failure_floor": 0,
+      "lock_floor": null,
+      "lock_trigger_balance": 4000,
+      "dll": {"amount": null, "action": "NONE"},
+      "max_live_accounts": 5,
+      "contract_tiers_cme": [
+        {"min_balance": 2000, "max_balance_exclusive": 4000, "max_minis": 3, "max_micros": 30},
+        {"min_balance": 4000, "max_balance_exclusive": null, "max_minis": 6, "max_micros": 60}
+      ],
+      "payout_state_metadata": {"cadence": "DAILY", "minimum_payout": 100, "first_5000_cumulative_split_percent": 100, "later_split_percent": 90},
+      "unresolved_reasons": [
+        "The same current official article states both that the 50K MLL locks at the starting $2,000 balance and later that the MLL Lock Benefit fixes it at $1,000. StarBase will not choose between conflicting official statements until clarified."
+      ],
+      "source_urls": ["https://helpfutures.fundednext.com/en/articles/15900277-road-to-live-trading-rapid-challenge"]
+    }
+  ]
+}
