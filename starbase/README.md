@@ -67,11 +67,13 @@ The controlling fleet/optimizer design requirements are now preserved in `STARBA
 
 ---
 
-## Current cumulative StarBase release: v5E
+## Current cumulative StarBase release: v5F
 
-StarBase v5E implements **Step 26 — Current Prop-Firm Rule Truth Layer** on top of the deployment-certified v5D fee engine. The official scoreboard entering v5E is **26 / 60 verified**.
+StarBase v5F begins **Step 27 — Golden Single-Account Verification** after the user deployment-certified v5E Step 26. The official scoreboard entering v5F is **27 / 60 verified**.
 
-The rulebook is now schema **3.1.0**, verified as of **2026-08-12**. Official rule documentation and StarBase engine readiness are separate: a product can have current verified rules while remaining `RULES_VERIFIED_ENGINE_PENDING`, `VARIANT_SELECTION_REQUIRED`, or `RESEARCH_ONLY`. Those paths stay visible but do not masquerade as trusted ranked simulations.
+The new **Golden Verification Lab (v5F)** runs 13 tiny hand-calculated account stories and compares expected vs actual values field-by-field. A deployed 13/13 PASS certifies Step 27 and also closes older deployment-verification gaps for Step 19 evaluation termination, Step 20 fresh-funded activation, and Step 23 cross-account comparison. If that smoke test passes, the scoreboard becomes **31 / 60 verified** and the next sequential target is Step 28 live-account state modeling.
 
-Major v5E additions include Tradeify Select Daily as a separate funded path, Topstep XFA Consistency as a separate payout path, current FundedNext Flex contract/reward rules, Apex tiered PA DLL/scaling semantics, consistency-rule filters, rule freshness, and expandable unresolved-rule explanations. See `STARBASE_MASTER_ROADMAP.md` and `STARBASE_V05E_CHANGELOG.md`.
+The Rule Truth page also now displays schema **3.1.0** directly at the top and includes a plain-English terminology guide for DLL (Daily Loss Limit), MLL (Maximum Loss Limit), qualifying/benchmark days, qualifying dollars/day, trader split, and drawdown labels. Detailed fields such as maximum contracts, DLL, buffers and access periods remain under **Inspect one product/path — detailed rules live here**.
+
+See `STARBASE_MASTER_ROADMAP.md`, `STARBASE_V05F_CHANGELOG.md`, and `STARBASE_V05F_VALIDATION_REPORT.md`.
 

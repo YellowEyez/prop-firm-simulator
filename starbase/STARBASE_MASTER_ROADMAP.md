@@ -3,14 +3,15 @@
 This is the controlling 60-step build checklist. Step numbers do not change casually.
 Each release must report: code-verified steps, deployed-certified steps, newly implemented steps, and next sequential target.
 
-## Current status at v5E
+## Current status at v5F
 
-- Deployment-certified by the user through v5D: **26 / 60**.
-- Verified steps are 1-18, 21-22, 24-25, and 33-36.
-- Implemented/code-regression-ready but not yet deployment-certified: **19, 20, 23, 26**.
-- v5D **Step 25 — Instrument-specific trading fees** is deployment-certified.
-- v5E implements **Step 26 — Current Prop-Firm Rule Truth Layer**: official-source re-verification dated 2026-08-12, stage-level Rule Truth grades, consistency filters, freshness checks, current path variants, and explicit engine-pending/not-rankable states instead of generic assumptions.
-- Step 27 is the next sequential target after v5E deployment certification: hand-calculated golden single-account fixtures for each core product/stage before restoring broad production-ready rankings.
+- Deployment-certified by the user through v5E: **27 / 60**.
+- Verified steps are 1-18, 21-22, 24-26, and 33-36.
+- Implemented/code-regression-ready but not yet deployment-certified before v5F: **19, 20, 23**.
+- v5E **Step 26 — Complete Current Prop-Firm Rule Semantics / Rule Truth** is deployment-certified by the user.
+- v5F implements **Step 27 — Golden Single-Account Verification**, plus deployment-certification controls for Steps 19, 20 and 23. The v5F Golden Lab has 13 independent hand-calculated fixtures and does not use Sydney/Julie historical data.
+- If the user deploys v5F and the Golden Lab shows 13/13 PASS, Steps **19, 20, 23 and 27** are all certified at once and the verified total becomes **31 / 60**.
+- The next sequential target after that certification is **Step 28 — Live-account state model**.
 - v5B-v5D contain partial research prototypes for Step 39 (Maintain-N replacement continuity) and Steps 41-42 (funded-only ending inventory). Those steps remain unchecked until their full real-rule scope is implemented and certified.
 - Important: implementation is not the same as full business-profit certification. Steps 26-32 remain required before multi-firm household profit claims.
 
@@ -53,7 +54,7 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 - [x] 24 Exact fee and account-cost engine *(deployment-certified from the user-returned strict v5C bundle)*
 - [x] 25 Instrument-specific trading fees *(v5D deployment-certified by user)*
 - [ ] 26 Complete rule semantics for every supported product *(v5E implemented/code-verified; deployment certification pending)*
-- [ ] 27 Golden single-account verification suite for each core product
+- [ ] 27 Golden single-account verification suite for each core product *(v5F implemented; deployment certification pending 13/13 Golden Lab PASS)*
 
 ## Phase 5 — Full Live Account Logic
 - [ ] 28 Live-account state model
@@ -102,4 +103,4 @@ Each release must report: code-verified steps, deployed-certified steps, newly i
 
 ## Release discipline
 
-A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C certified Step 24 and fixed the workspace/data-library flow. v5D completed **Step 25 instrument-specific trading fees**. v5E implements **Step 26 complete current rule semantics / Rule Truth**. After Step 26 deployment certification, the next sequential target is **27 golden single-account verification**.
+A later-numbered step can be prototyped early when it helps validate architecture, but StarBase must not skip the unfinished lower-numbered trust/economics steps before making production-profit claims. In particular, v5A intentionally prototypes Steps 33-36 while Steps 24-32 remain unfinished. v5B returned to the sequential trust path at **Step 24**; v5C certified Step 24 and fixed the workspace/data-library flow. v5D completed **Step 25 instrument-specific trading fees**. v5E completed and deployment-certified **Step 26 complete current rule semantics / Rule Truth**. v5F implements **Step 27 golden single-account verification** and uses that same deployment smoke test to close older Steps 19, 20 and 23. After a 13/13 deployed Golden Lab PASS, the next sequential target is **Step 28 live-account state model**.

@@ -1044,7 +1044,7 @@ def build_fleet_bundle(run: FleetRun) -> bytes:
         z.writestr("BOTTLENECK_SUMMARY.csv", run.bottlenecks.to_csv(index=False))
         z.writestr("FORFEITURE_AND_TRANSITION_VALUE_LEDGER.csv", run.forfeitures.to_csv(index=False))
         lines = [
-            "# Project StarBase v5D — Josh Fleet Economics + Fee Provenance", "",
+            "# Project StarBase v5F — Josh Fleet Economics + Fee Provenance", "",
             f"Run ID: **{run.summary.get('run_id')}**",
             f"Data mode: **{run.summary.get('data_mode')}**",
             f"Product: **{run.summary.get('firm')} / {run.summary.get('product')} / ${run.summary.get('account_size'):,}**",

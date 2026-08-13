@@ -23,7 +23,7 @@ def _dataset_label(d: dict) -> str:
 
 
 def render_dataset_library_page() -> None:
-    st.header("🗃️ Strategy Dataset Library (v5E)")
+    st.header("🗃️ Strategy Dataset Library (v5F)")
     st.caption("Upload a TradingView strategy once, give it a durable identity/notes, and reuse it throughout StarBase without repeatedly selecting every CSV segment.")
     st.warning("Streamlit Community Cloud runtime storage is not guaranteed to survive an app redeploy/restart. Use the **Dataset Vault ZIP** below as your portable backup. After a redeploy, restoring the whole library takes one ZIP upload instead of re-uploading every CSV segment.")
 

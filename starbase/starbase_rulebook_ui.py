@@ -40,17 +40,18 @@ def render_rulebook_page():
     rows = flatten_rulebook(data)
     fresh = rulebook_freshness(data)
 
-    st.header("📚 StarBase v5E — Current Prop-Firm Rule Truth Layer")
+    st.header("📚 StarBase v5F — Current Prop-Firm Rule Truth Layer")
     st.caption(
         "Official rules and simulation coverage are deliberately separate. A rule can be verified from the firm while the dedicated StarBase lifecycle handler is still pending."
     )
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Verified as of", data["verified_as_of"])
-    c2.metric("Freshness", fresh["grade"])
-    c3.metric("Firms", len(data["firms"]))
-    c4.metric("Product paths", sum(len(f.get("products", [])) for f in data["firms"]))
-    c5.metric("Size variants", len(rows))
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1.metric("Rulebook schema", data.get("schema_version", "—"))
+    c2.metric("Verified as of", data["verified_as_of"])
+    c3.metric("Freshness", fresh["grade"])
+    c4.metric("Firms", len(data["firms"]))
+    c5.metric("Product paths", sum(len(f.get("products", [])) for f in data["firms"]))
+    c6.metric("Size variants", len(rows))
 
     if fresh["grade"] == "STALE":
         st.error(f"Rule snapshot is {fresh['age_days']} days old. Re-verify official firm rules before production research.")
@@ -58,6 +59,16 @@ def render_rulebook_page():
         st.warning(f"Rule snapshot is {fresh['age_days']} days old and approaching the 30-day stale threshold.")
     else:
         st.success("Rule snapshot is fresh. Current verification date: 2026-08-12.")
+
+    with st.expander("Terminology used on this page", expanded=False):
+        st.markdown("""
+- **DLL = Daily Loss Limit.** A daily/session loss threshold. Depending on the product it may pause trading rather than permanently fail the account.
+- **MLL = Maximum Loss Limit.** The account failure floor / maximum permitted drawdown.
+- **Qual Days = Qualifying or Benchmark Days.** The number of qualifying profit days required for a payout.
+- **Qual $/Day = Qualifying profit required per day.** For example, 5 days × $200 means five qualifying days with at least $200 profit each.
+- **Split = Trader payout/reward share.** A 95% split means the trader receives 95% of the approved gross payout before any separately modeled processing fee.
+- **Eval DD / Funded DD = Evaluation/Funded Drawdown family.** EOD = end-of-day trailing; Intraday = the threshold can move intraday; Static = it does not trail.
+""")
 
     with st.expander("How to read Rule Truth grades", expanded=False):
         for k, v in GRADE_LABELS.items():
@@ -108,10 +119,10 @@ def render_rulebook_page():
         "Eval DD": DD_LABELS.get(r.evaluation_drawdown, r.evaluation_drawdown or "—"),
         "Funded DD": DD_LABELS.get(r.funded_drawdown, r.funded_drawdown or "—"),
         "Eval Target": _fmt_money(r.profit_target),
-        "Funded MLL": _fmt_money(r.funded_max_loss),
-        "Qual Days": r.payout_qualifying_days if r.payout_qualifying_days is not None else "—",
-        "Qual $/Day": _fmt_money(r.payout_qualifying_profit),
-        "Split": f"{r.payout_split_percent:.0f}%" if r.payout_split_percent is not None else "—",
+        "Funded MLL (Max Loss)": _fmt_money(r.funded_max_loss),
+        "Qualifying / Benchmark Days": r.payout_qualifying_days if r.payout_qualifying_days is not None else "—",
+        "Qualifying $ / Day": _fmt_money(r.payout_qualifying_profit),
+        "Trader Split": f"{r.payout_split_percent:.0f}%" if r.payout_split_percent is not None else "—",
         "Eval Truth": GRADE_LABELS.get(r.evaluation_rule_grade, r.evaluation_rule_grade),
         "Funded Truth": GRADE_LABELS.get(r.funded_rule_grade, r.funded_rule_grade),
     } for r in filtered])
@@ -132,7 +143,8 @@ def render_rulebook_page():
             product_ids.append(product["product_id"])
             product_labels[product["product_id"]] = f"{firm['display_name']} — {product['display_name']}"
 
-    st.subheader("Inspect one product/path")
+    st.subheader("Inspect one product/path — detailed rules live here")
+    st.caption("The matrix above is intentionally compact. Use this section when you need fields such as Daily Loss Limit (DLL), maximum contracts, access period, payout minimums, buffers, or other stage-specific details.")
     pid = st.selectbox("Product family", product_ids, format_func=lambda x: product_labels[x], key="v5e_product_inspector")
     details = product_details(data, pid)
     firm = details["firm"]

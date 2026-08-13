@@ -21,6 +21,7 @@ from starbase_historical_runner_ui import render_historical_runner_page
 from starbase_lifecycle_ui import render_lifecycle_page
 from starbase_fleet_ui import render_fleet_page
 from starbase_dataset_library_ui import render_dataset_library_page
+from starbase_golden_ui import render_golden_page
 from starbase_workspaces import WORKSPACE_LABELS, workspace_key
 
 # Import simulation engine
@@ -250,15 +251,17 @@ def main():
             "Choose workspace",
             WORKSPACE_LABELS,
             index=0,
-            help="v5E keeps reusable named strategy datasets with explicit futures-instrument identity. v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
+            help="v5F keeps reusable named strategy datasets with explicit futures-instrument identity. v2 audits source data. v3 is the source-cited rulebook. v3.5 adds reproducibility and provenance. v4A adds one-account state and accounting only. Legacy remains reference-only."
         )
         route_key = workspace_key(starbase_mode)
         if route_key == "dataset_library":
-            st.success("v5E dataset library: save named TradingView strategy/profile batches once, add notes/timeframe metadata, reuse them across StarBase, and back them up as one portable Dataset Vault ZIP.")
+            st.success("v5F dataset library: save named TradingView strategy/profile batches once, add notes/timeframe metadata, reuse them across StarBase, and back them up as one portable Dataset Vault ZIP.")
         elif route_key == "audit":
             st.success("v2 audit mode: lifecycle simulation disabled until source integrity passes.")
         elif route_key == "rulebook":
             st.success("v3 rulebook mode: current rules are classified and source-cited; execution begins in v4.")
+        elif route_key == "golden":
+            st.success("v5F golden verification: 13 independent tiny account fixtures must match hand-calculated expected values before Step 27 is certified.")
         elif route_key == "integrity":
             st.success("v3.5 integrity mode: fingerprint sources, classify fidelity, verify rule coverage, and preserve experiment lineage before v4.")
         elif route_key == "account_state":
@@ -268,7 +271,7 @@ def main():
         elif route_key == "lifecycle":
             st.success("v4C lifecycle mode: evaluations actually stop at pass/fail/expiry, supported funded products take real rule-based payouts, and the same exact profile can be compared across accounts.")
         elif route_key == "fleet_economics":
-            st.success("v5E fleet economics + fee provenance: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
+            st.success("v5F fleet economics + fee provenance: Josh routes one strategy across many funded accounts with explicit account-cost basis, Maintain-N replacements, ending payout inventory, bottlenecks, and forfeiture/transition-value ledgers.")
         else:
             st.warning("Legacy mode is preserved for comparison only. Its funded/rule logic is not production-trusted yet.")
 
@@ -281,6 +284,9 @@ def main():
         return
     if route_key == "rulebook":
         render_rulebook_page()
+        return
+    if route_key == "golden":
+        render_golden_page()
         return
     if route_key == "integrity":
         render_integrity_page()
