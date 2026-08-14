@@ -53,6 +53,9 @@ class LiveAccountState:
     rule_snapshot_hash: str
     unresolved_reasons: tuple[str, ...]
     source_urls: tuple[str, ...]
+    live_payout_count: int = 0
+    last_live_payout_date: Optional[str] = None
+    live_bonus_cash_received: float = 0.0
 
 
 def load_live_profiles(path: Optional[str | Path] = None) -> Dict[str, Any]:

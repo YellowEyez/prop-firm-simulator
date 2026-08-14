@@ -80,3 +80,9 @@ See `STARBASE_MASTER_ROADMAP.md`, `STARBASE_V05G_CHANGELOG.md`, and `STARBASE_V0
 ## v5H - Live Transition Engine
 
 v5H implements **Step 29 - Sim-funded -> live transition rules** on top of the certified v5G live-account state foundation. The new **Live Transition Lab (v5H)** makes firm call-up/threshold events explicit, records which simulated accounts close or suspend, creates current-rule refunds/Bonus Vault/Reserve/reward-pool transition values, and instantiates the correct destination Live state. Discretionary risk-team selections are never inferred from trade history. Live withdrawals remain Step 30 and final transition-forfeiture household accounting remains Step 31.
+
+## v5I - Live Payout / Withdrawal Engine
+
+User-certified progress entering v5I is **33 / 60 verified**. v5H certified Step 29 with 7/7 transition fixtures.
+
+v5I implements **Step 30 - Live payout/withdrawal engine**. The new **Live Payout / Withdrawal Lab (v5I)** executes deterministic live payout gates and cash splits for currently modeled LucidLive, Tradeify Elite, MFFU Flex Live 50K, Apex Live, and Topstep LFA paths, while keeping unresolved FundedNext Live blocked. Step 31 remains responsible for final forfeiture/closure-value household accounting.

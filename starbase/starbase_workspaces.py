@@ -8,6 +8,7 @@ WORKSPACES = [
     ("Golden Verification Lab (v5F)", "golden"),
     ("Live Account State Lab (v5G)", "live_state"),
     ("Live Transition Lab (v5H)", "live_transition"),
+    ("Live Payout / Withdrawal Lab (v5I)", "live_payout"),
     ("Research Integrity + Provenance (v3.5)", "integrity"),
     ("Single-Account State + Ledger (v4A)", "account_state"),
     ("Historical Single-Account Trader (v4B)", "historical_runner"),

@@ -24,3 +24,7 @@ def test_live_state_workspace_routes_exactly():
 
 def test_live_transition_workspace_routes_exactly():
     assert workspace_key("Live Transition Lab (v5H)") == "live_transition"
+
+
+def test_live_payout_workspace_routes_exactly():
+    assert workspace_key("Live Payout / Withdrawal Lab (v5I)") == "live_payout"

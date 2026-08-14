@@ -25,7 +25,7 @@ def render_live_state_page():
     c1, c2, c3 = st.columns(3)
     c1.metric("Live profile schema", catalog.get("schema_version"))
     c2.metric("Profiles verified as of", catalog.get("verified_as_of"))
-    c3.metric("Current StarBase progress", "32 / 60 verified")
+    c3.metric("Current StarBase progress", "33 / 60 verified")
 
     with st.expander("What Step 28 does — and does not — certify", expanded=False):
         st.markdown(

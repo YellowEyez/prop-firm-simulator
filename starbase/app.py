@@ -24,6 +24,7 @@ from starbase_dataset_library_ui import render_dataset_library_page
 from starbase_golden_ui import render_golden_page
 from starbase_live_ui import render_live_state_page
 from starbase_live_transition_ui import render_live_transition_page
+from starbase_live_payout_ui import render_live_payout_page
 from starbase_workspaces import WORKSPACE_LABELS, workspace_key
 
 # Import simulation engine
@@ -268,6 +269,8 @@ def main():
             st.success("v5G live-state mode: Step 28 models live balance conventions, failure floors, DLL state, reserves/vault metadata, contract tiers, and current official rule provenance.")
         elif route_key == "live_transition":
             st.success("v5H live-transition mode: Step 29 models firm call-up/threshold events, simulated-account closure or suspension, refunds, Bonus Vault/Reserve tracking, and creation of the correct live starting state.")
+        elif route_key == "live_payout":
+            st.success("v5I live-payout mode: Step 30 executes current live withdrawal gates, payout splits, safety nets, payout-caused closure, and separately tracked live bonus/vault estimates.")
         elif route_key == "integrity":
             st.success("v3.5 integrity mode: fingerprint sources, classify fidelity, verify rule coverage, and preserve experiment lineage before v4.")
         elif route_key == "account_state":
@@ -299,6 +302,9 @@ def main():
         return
     if route_key == "live_transition":
         render_live_transition_page()
+        return
+    if route_key == "live_payout":
+        render_live_payout_page()
         return
     if route_key == "integrity":
         render_integrity_page()

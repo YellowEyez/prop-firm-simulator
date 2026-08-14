@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "verified_as_of": "2026-08-14",
+  "notes": "Step 30 live-payout policy catalog. Policies execute live withdrawals only where current official rules are sufficiently explicit. Final forfeiture/closure value treatment remains Step 31.",
+  "policies": [
+    {
+      "policy_id": "lucid_live_standard",
+      "firm_id": "lucid",
+      "firm_name": "Lucid Trading",
+      "display_name": "LucidLive - Current Standard Live Payout",
+      "profile_ids": [
+        "lucid_live_25k",
+        "lucid_live_50k",
+        "lucid_live_100k",
+        "lucid_live_150k"
+      ],
+      "policy_grade": "VERIFIED_CORE",
+      "cadence": "DAILY",
+      "profit_split_percent": 90,
+      "minimum_gross_payout": null,
+      "withdrawable_basis": "BALANCE_ABOVE_LOCK_FLOOR",
+      "post_payout_floor_lock": 100,
+      "full_balance_withdrawal_closes": false,
+      "live_bonus": {
+        "first_live_trip_only": true,
+        "bonus_not_deducted_from_account_balance": true,
+        "targets_by_source_size": {
+          "25000": 1100,
+          "50000": 2100,
+          "100000": 3100,
+          "150000": 4600
+        },
+        "bonus_by_source_size": {
+          "25000": 1000,
+          "50000": 2000,
+          "100000": 3000,
+          "150000": 4500
+        }
+      },
+      "source_urls": [
+        "https://support.lucidtrading.com/en/articles/13425130-new-live-structure"
+      ],
+      "minimum_rule_note": "Current standard LucidLive structure page does not state a numeric minimum payout; Step 30 does not invent one."
+    },
+    {
+      "policy_id": "tradeify_elite_live",
+      "firm_id": "tradeify",
+      "firm_name": "Tradeify",
+      "display_name": "Tradeify Elite - Current Live Payout",
+      "profile_ids": [
+        "tradeify_elite_25k",
+        "tradeify_elite_50k",
+        "tradeify_elite_100k",
+        "tradeify_elite_150k"
+      ],
+      "policy_grade": "VERIFIED_CORE",
+      "cadence": "DAILY",
+      "profit_split_percent": 80,
+      "minimum_gross_payout": 0,
+      "withdrawable_basis": "CURRENT_LIVE_BALANCE",
+      "trading_capital_floor": 0,
+      "full_balance_withdrawal_closes": true,
+      "source_urls": [
+        "https://help.tradeify.co/en/articles/12969284-tradeify-elite-program"
+      ]
+    },
+    {
+      "policy_id": "mffu_flex_live_50k",
+      "firm_id": "mffu",
+      "firm_name": "My Funded Futures",
+      "display_name": "MFFU Flex 50K - Current Live Payout",
+      "profile_ids": [
+        "mffu_flex_live_50k"
+      ],
+      "policy_grade": "VERIFIED_WITH_EXPLICIT_PROFIT_LEDGER",
+      "cadence": "DAILY",
+      "profit_split_percent": 80,
+      "minimum_gross_payout": 250,
+      "withdrawable_basis": "EXPLICIT_LIVE_PROFIT_LEDGER_AND_MINIMUM_BALANCE",
+      "minimum_balance": 156,
+      "full_balance_withdrawal_closes": false,
+      "source_urls": [
+        "https://help.myfundedfutures.com/en/articles/15072271-flex-plan-50-000-a-comprehensive-guide"
+      ]
+    },
+    {
+      "policy_id": "apex_live_uniform",
+      "firm_id": "apex",
+      "firm_name": "Apex Trader Funding",
+      "display_name": "Apex Live - Current Live Payout",
+      "profile_ids": [
+        "apex_live_uniform"
+      ],
+      "policy_grade": "VERIFIED_CORE_WITH_BONUS_VAULT_ESTIMATE",
+      "cadence": "DAILY",
+      "profit_split_percent": 90,
+      "minimum_gross_payout": 500,
+      "withdrawable_basis": "BALANCE_ABOVE_SAFETY_NET",
+      "safety_net_balance": 3100,
+      "safety_net_closeout_after_live_days": 90,
+      "full_balance_withdrawal_closes": true,
+      "bonus_vault_monthly_release_rate": 0.2,
+      "bonus_vault_release_is_estimate_until_other_eligibility_confirmed": true,
+      "source_urls": [
+        "https://apextraderfunding.com/help-center/getting-started/apex-live-prop-trading-program-faq/"
+      ]
+    },
+    {
+      "policy_id": "topstep_lfa",
+      "firm_id": "topstep",
+      "firm_name": "Topstep",
+      "display_name": "Topstep Live Funded Account - Current Payout",
+      "profile_ids": [
+        "topstep_lfa_50k",
+        "topstep_lfa_100k",
+        "topstep_lfa_150k"
+      ],
+      "policy_grade": "VERIFIED_CORE",
+      "cadence": "CYCLE_THEN_DAILY",
+      "profit_split_percent": 90,
+      "minimum_gross_payout": 125,
+      "pre_daily_unlock": {
+        "required_winning_days": 5,
+        "winning_day_min_net": 150,
+        "max_withdrawal_fraction_of_unlocked_balance": 0.5
+      },
+      "daily_unlock_after_lifetime_winning_days": 30,
+      "withdrawable_basis": "UNLOCKED_LIVE_BALANCE_ONLY",
+      "reserve_withdrawable": false,
+      "full_balance_withdrawal_closes": true,
+      "source_urls": [
+        "https://help.topstep.com/en/articles/8284233-topstep-payout-policy",
+        "https://help.topstep.com/en/articles/10657969-live-funded-account-parameters"
+      ]
+    }
+  ]
+}

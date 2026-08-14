@@ -30,7 +30,7 @@ def render_live_transition_page():
     c1, c2, c3 = st.columns(3)
     c1.metric("Transition policy schema", catalog.get("schema_version"))
     c2.metric("Policies verified as of", catalog.get("verified_as_of"))
-    c3.metric("Current StarBase progress", "32 / 60 verified")
+    c3.metric("Current StarBase progress", "33 / 60 verified")
 
     with st.expander("What Step 29 certifies", expanded=False):
         st.markdown(
